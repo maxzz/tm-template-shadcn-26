@@ -11,7 +11,7 @@
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^6.0.1",
         "globals": "^17.5.0",
-        "jotai-family": "^1.0.1",
+        "jotai-family": "^1.0.2",
         "rollup-plugin-visualizer": "^7.0.1",
         "tailwindcss-plugin-debug-screens-tw4": "^1.0.4",
         "tailwindcss-plugin-overflow-tw4": "^1.0.1",
