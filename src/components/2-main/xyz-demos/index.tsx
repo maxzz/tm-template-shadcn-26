@@ -2,6 +2,8 @@ import { Button } from "@/ui/shadcn/button";
 import { doAsyncExecuteConfirmDialogAtom } from "../../4-dialogs/8-1-confirmation/9-types-confirmation";
 import { useSetAtom } from "jotai";
 
+export { TestResizablePanels } from "./test-resizable-panels";
+
 export function TestConfirmationDialog() {
     const doAsyncExecuteConfirmDialog = useSetAtom(doAsyncExecuteConfirmDialogAtom);
     return (
