@@ -18,7 +18,7 @@
         "tsx": "^4.22.2",
         "typescript": "~6.0.2",
         "upen": "^1.0.2",
-        "vite": "^8.0.13",
+        "vite": "^8.0.16",
         "vitest": "^4.1.6"
     },
     "dependencies": {
