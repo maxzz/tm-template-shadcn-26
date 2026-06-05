@@ -32,17 +32,16 @@ export function DialogClose({ ...rest }: ComponentProps<typeof DialogPrimitive.C
 const overlayClasses = "\
 fixed inset-0 z-50 isolate \
 \
-bg-background/80 \
-duration-100 \
+bg-background/30 \
+1duration-100 \
 \
-supports-backdrop-filter:backdrop-blur-xs \
+supports-backdrop-filter:backdrop-blur-[1px] \
 \
 data-open:animate-in \
 data-open:fade-in-0 \
 data-closed:animate-out \
 data-closed:fade-out-0"; // original has bg-black/10 
-
-const overlay2Classes="bg-background/10 backdrop-blur-[1px]"
+// data-closed:fade-out-0"; // original has bg-black/10 
 
 export function DialogOverlay({ className, ...rest }: ComponentProps<typeof DialogPrimitive.Overlay>) {
     return (
@@ -121,7 +120,7 @@ export function DialogContent({ className, children, noClose, modal, onPointerDo
     return (
         <DialogPortal>
             <DialogOverlay />
-            {withScroll ? <DialogOverlayWithScroll className={overlay2Classes} /> : <DialogOverlay className={overlay2Classes} />}
+            {withScroll ? <DialogOverlayWithScroll className={overlayClasses} /> : <DialogOverlay className={overlayClasses} />}
 
             <DialogPrimitive.Content
                 className={cn(DialogContentClasses, className)}
