@@ -4,8 +4,6 @@ import { Button } from "@/ui/shadcn/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/ui/shadcn/dialog";
 import { type ConfirmationData, isOpenConfirmDialogAtom } from "@/components/4-dialogs/8-1-confirmation/9-types-confirmation";
 
-const DESCRIPTION_ID = "confirmation-dialog-message";
-
 export function ConfirmationDialog() {
     const [confirmData, setConfirmData] = useAtom(isOpenConfirmDialogAtom);
     if (!confirmData) {
@@ -20,12 +18,13 @@ export function ConfirmationDialog() {
     }
 
     return (
-        <Dialog open={!!currentConfirmData} onOpenChange={() => onDlgClose(false)} modal>
-            <DialogContent className="max-w-sm! gap-0! p-0!" showCloseButton={false} aria-describedby={DESCRIPTION_ID}>
+        <Dialog open={!!currentConfirmData} onOpenChange={() => onDlgClose(false)}>
+            <DialogContent className="max-w-sm! gap-0! p-0!" aria-describedby={DESCRIPTION_ID} modal>
                 <DialogHeader className="gap-0 border-b px-4 py-3 text-left">
                     <DialogTitle className="text-sm">
                         {currentConfirmData.ui.title}
                     </DialogTitle>
+
                     <DialogDescription className="sr-only">
                         Confirmation required before continuing.
                     </DialogDescription>
@@ -40,26 +39,29 @@ export function ConfirmationDialog() {
 function Body({ confirmDialogOpen, onDlgClose }: { confirmDialogOpen: ConfirmationData; onDlgClose: (ok: boolean) => void; }) {
     const { ui: { icon, message, buttonOk, buttonCancel, isDafaultOk } } = confirmDialogOpen;
     return (
-        <div className="px-4 py-3">
+        <div className="px-4 py-3 flex flex-col gap-3">
             <div id={DESCRIPTION_ID} className="flex items-start gap-2 text-xs leading-5 text-foreground/90">
-                {icon ? (
-                    <div className="mt-0.5 shrink-0 text-amber-600">
-                        {icon}
-                    </div>
-                ) : null}
+                {icon
+                    ? (
+                        <div className="mt-0.5 shrink-0 text-amber-600">
+                            {icon}
+                        </div>
+                    )
+                    : null
+                }
 
                 <div className="min-w-0">
                     {message}
                 </div>
             </div>
 
-            <DialogFooter className={classNames("pt-4 flex-row", buttonCancel ? "justify-end" : "justify-center")}>
-                <Button variant={isDafaultOk ? "default" : "outline"} onClick={() => onDlgClose(true)}>
+            <DialogFooter className={classNames("pt-3 flex-row", buttonCancel ? "justify-end" : "justify-center")}>
+                <Button variant={isDafaultOk ? "default" : "outline"} onClick={() => onDlgClose(true)} className="min-w-16">
                     {buttonOk}
                 </Button>
 
                 {buttonCancel && (
-                    <Button variant={isDafaultOk ? "outline" : "default"} onClick={() => onDlgClose(false)}>
+                    <Button variant={isDafaultOk ? "outline" : "default"} onClick={() => onDlgClose(false)} className="min-w-16">
                         {buttonCancel}
                     </Button>
                 )}
@@ -67,3 +69,5 @@ function Body({ confirmDialogOpen, onDlgClose }: { confirmDialogOpen: Confirmati
         </div>
     );
 }
+
+const DESCRIPTION_ID = "confirmation-dialog-message";
