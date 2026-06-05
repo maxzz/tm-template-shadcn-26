@@ -9,9 +9,11 @@ export function getValidPanelSizes(parsedSizes?: unknown): PanelSizes {
     const defaultHorizontal = { left: 30, right: 70 };
     const defaultVertical = { top: 50, bottom: 50 };
 
-    const rv: PanelSizes = parsedSizes as PanelSizes ?? {
-        horizontal: defaultHorizontal,
-        vertical: defaultVertical,
+    const sizes = parsedSizes as PanelSizes | undefined;
+
+    const rv: PanelSizes = {
+        horizontal: sizes?.horizontal ?? defaultHorizontal,
+        vertical: sizes?.vertical ?? defaultVertical,
     };
 
     return rv;
