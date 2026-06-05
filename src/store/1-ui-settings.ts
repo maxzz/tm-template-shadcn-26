@@ -7,23 +7,70 @@ const STORE_VER = "v1.0";
 const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
 
 export interface PanelSizes {
-    horizontal?: Layout;
-    vertical?: Layout;
+    horizontal: Layout;
+    vertical: Layout;
 }
 
 export interface AppSettings {
     theme: ThemeMode;
     showFooter: boolean;
-    panelSizes?: PanelSizes;      // ResizablePanelGroup panel sizes
+    panelSizes: PanelSizes;      // ResizablePanelGroup panel sizes
+}
+
+export function getValidPanelSizes(parsedSizes?: unknown): PanelSizes {
+    const defaultHorizontal = { left: 30, right: 70 };
+    const defaultVertical = { top: 50, bottom: 50 };
+
+    if (!parsedSizes) {
+        return {
+            horizontal: defaultHorizontal,
+            vertical: defaultVertical,
+        };
+    }
+
+    let horizontal: Layout = defaultHorizontal;
+    let vertical: Layout = defaultVertical;
+
+    if (Array.isArray(parsedSizes)) {
+        // Safe migration from old format (array) to new format (object)
+        if (parsedSizes.length >= 2) {
+            horizontal = {
+                left: typeof parsedSizes[0] === 'number' ? parsedSizes[0] : 30,
+                right: typeof parsedSizes[1] === 'number' ? parsedSizes[1] : 70,
+            };
+        }
+    } else if (typeof parsedSizes === 'object' && parsedSizes !== null) {
+        const obj = parsedSizes as Record<string, any>;
+        
+        // Validate horizontal
+        if (obj.horizontal && typeof obj.horizontal === 'object') {
+            const h = obj.horizontal as Record<string, any>;
+            horizontal = {
+                left: typeof h.left === 'number' ? h.left : 30,
+                right: typeof h.right === 'number' ? h.right : 70,
+            };
+        }
+        
+        // Validate vertical
+        if (obj.vertical && typeof obj.vertical === 'object') {
+            const v = obj.vertical as Record<string, any>;
+            vertical = {
+                top: typeof v.top === 'number' ? v.top : 50,
+                bottom: typeof v.bottom === 'number' ? v.bottom : 50,
+            };
+        }
+    }
+
+    return {
+        horizontal,
+        vertical,
+    };
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
     theme: 'light',
     showFooter: true,
-    panelSizes: {
-        horizontal: { left: 30, right: 70 },
-        vertical: { top: 50, bottom: 50 },
-    },
+    panelSizes: getValidPanelSizes(),
 };
 
 // Load settings from localStorage
@@ -34,27 +81,11 @@ function loadSettings(): AppSettings {
         if (stored) {
             const parsed = JSON.parse(stored) as Partial<AppSettings>;
             
-            // Safe migration for panelSizes from old format (array) to new format (object)
-            let panelSizes = DEFAULT_SETTINGS.panelSizes;
-            if (parsed.panelSizes) {
-                if (Array.isArray(parsed.panelSizes)) {
-                    panelSizes = {
-                        horizontal: parsed.panelSizes.length >= 2 ? { left: parsed.panelSizes[0], right: parsed.panelSizes[1] } : DEFAULT_SETTINGS.panelSizes?.horizontal,
-                        vertical: DEFAULT_SETTINGS.panelSizes?.vertical,
-                    };
-                } else {
-                    panelSizes = {
-                        horizontal: parsed.panelSizes.horizontal ?? DEFAULT_SETTINGS.panelSizes?.horizontal,
-                        vertical: parsed.panelSizes.vertical ?? DEFAULT_SETTINGS.panelSizes?.vertical,
-                    };
-                }
-            }
-
             // merge stored settings with defaults to ensure new fields are present
             return {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
-                panelSizes,
+                panelSizes: getValidPanelSizes(parsed.panelSizes),
             };
         }
     } catch (e) {
