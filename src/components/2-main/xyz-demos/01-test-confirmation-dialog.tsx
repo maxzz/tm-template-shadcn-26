@@ -7,6 +7,7 @@ export function TestConfirmationDialog() {
     return (
         <div>
             <Button
+                variant="outline"
                 onClick={
                     async () => {
                         doAsyncExecuteConfirmDialog({

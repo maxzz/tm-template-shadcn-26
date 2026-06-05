@@ -42,6 +42,8 @@ data-open:fade-in-0 \
 data-closed:animate-out \
 data-closed:fade-out-0"; // original has bg-black/10 
 
+const overlay2Classes="bg-background/10 backdrop-blur-[1px]"
+
 export function DialogOverlay({ className, ...rest }: ComponentProps<typeof DialogPrimitive.Overlay>) {
     return (
         <DialogPrimitive.Overlay data-slot="dialog-overlay" className={cn(overlayClasses, className)} {...rest} />
@@ -102,6 +104,9 @@ grid gap-4";
 // data-closed:zoom-out-95
 // "
 
+const closeButtonClasses = "relative! right-0! top-0! p-2 hover:text-white hover:bg-red-500 hover:opacity-100 focus:ring-0 active:scale-[.97]";
+const closeButton2Classes = "absolute right-2 top-2";
+
 type DialogContentProps = ComponentProps<typeof DialogPrimitive.Content> & {
     modal?: boolean;
     noClose?: boolean;
@@ -116,7 +121,7 @@ export function DialogContent({ className, children, noClose, modal, onPointerDo
     return (
         <DialogPortal>
             <DialogOverlay />
-            {withScroll ? <DialogOverlayWithScroll className={overlayClasses} /> : <DialogOverlay className={overlayClasses} />}
+            {withScroll ? <DialogOverlayWithScroll className={overlay2Classes} /> : <DialogOverlay className={overlay2Classes} />}
 
             <DialogPrimitive.Content
                 className={cn(DialogContentClasses, className)}
@@ -130,15 +135,12 @@ export function DialogContent({ className, children, noClose, modal, onPointerDo
 
                 {!noClose && (
                     <DialogPrimitive.Close data-slot="dialog-close" asChild>
-                        <Button
-                            variant="ghost"
-                            className="absolute right-2 top-2"
-                            size="icon-sm"
-                        >
+                        <Button variant="ghost" className={closeButton2Classes} size="icon-sm" tabIndex={-1}>
                             <XIcon />
                             <span className="sr-only">Close</span>
                         </Button>
                     </DialogPrimitive.Close>
+
                 )}
             </DialogPrimitive.Content>
         </DialogPortal >
