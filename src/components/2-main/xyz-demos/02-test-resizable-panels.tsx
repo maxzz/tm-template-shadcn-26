@@ -20,7 +20,7 @@ export function TestResizablePanels({ className, ...rest }: ComponentProps<"div"
     const verticalLayout = settings.panelSizes.vertical;
 
     return (
-        <div className={classNames("flex flex-col", className)} {...rest}>
+        <div className={classNames("font-condensed text-xs flex flex-col", className)} {...rest}>
             <ResizablePanelsHeader />
 
             <div className="flex-1 min-h-0">
@@ -61,7 +61,7 @@ function ResizablePanelsHeader() {
 
     return (
         <div className="px-4 py-3 border-b bg-muted/20 flex items-center justify-between">
-            <span className="text-sm font-semibold">Resizable Panels Demo</span>
+            <span className="text-sm">Resizable Panels Demo</span>
             <span className="text-xs font-mono text-muted-foreground">
                 H: {Math.round(leftWidth)}% : {Math.round(rightWidth)}% | V: {Math.round(topHeight)}% : {Math.round(bottomHeight)}%
             </span>
@@ -72,7 +72,7 @@ function ResizablePanelsHeader() {
 function DemoPanelLeft() {
     return (
         <div className="p-6 h-full bg-muted/40 text-center flex flex-col items-center justify-center">
-            <span className="font-semibold text-sm">Left Panel</span>
+            <span>Left Panel</span>
         </div>
     );
 }
@@ -80,7 +80,7 @@ function DemoPanelLeft() {
 function DemoPanelRightTop() {
     return (
         <div className="p-6 h-full bg-muted/40 text-center flex flex-col items-center justify-center">
-            <span className="font-semibold text-sm">Right Top Panel</span>
+            <span>Right Top Panel</span>
         </div>
     );
 }
@@ -88,7 +88,7 @@ function DemoPanelRightTop() {
 function DemoPanelRightBottom() {
     return (
         <div className="p-6 h-full bg-muted/40 text-center flex flex-col items-center justify-center">
-            <span className="font-semibold text-sm">Right Bottom Panel</span>
+            <span>Right Bottom Panel</span>
         </div>
     );
 }
