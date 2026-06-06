@@ -1,11 +1,13 @@
 @import 'tailwindcss';
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
 @import "@fontsource-variable/geist";
+@import '@fontsource-variable/yanone-kaffeesatz'; /* https://fontsource.org/fonts/yanone-kaffeesatz/install */
 
 /* Custom fonts */
 
-@font-face {
+/* @font-face {
     font-family: "Yanone";
     src: url("./assets/fonts/YanoneKaffeesatz-VariableFont_wght.ttf") format("truetype supports variations"),
         url("./assets/fonts/YanoneKaffeesatz-VariableFont_wght.ttf") format("truetype-variations");
@@ -16,10 +18,10 @@
     font-family: "RobotoThin";
     src: url("./assets/fonts/RobotoMono-Thin.ttf");
     font-weight: 400;
-}
+} */
 
 @theme inline {
-    --font-ui: "Yanone", sans-serif;
+    --font-ui: "Yanone Kaffeesatz Variable", sans-serif;
     --font-numbers: "RobotoThin", monospace;
 }
 
