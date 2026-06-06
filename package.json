@@ -23,6 +23,7 @@
     },
     "dependencies": {
         "@fontsource-variable/geist": "^5.2.9",
+        "@fontsource-variable/geist-mono": "^5.2.8",
         "@fontsource-variable/roboto-condensed": "^5.2.8",
         "@fontsource-variable/yanone-kaffeesatz": "^5.2.7",
         "@tailwindcss/vite": "^4.3.0",
