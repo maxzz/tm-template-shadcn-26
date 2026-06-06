@@ -91,7 +91,7 @@
     --code-number: oklch(0.72 0 0);
     --code-selection: oklch(0.922 0 0);
     --code-border: oklch(0.922 0 0);
-    --radius: 0.25rem;
+    --radius: 0.625rem;
 }
 
 .dark {
@@ -137,7 +137,7 @@
     --code-number: oklch(0.72 0 0);
     --code-selection: oklch(0.922 0 0);
     --code-border: oklch(1 0 0 / 10%);
-    --radius: 0.25rem;
+    --radius: 0.625rem;
 }
 
 @layer base {

@@ -55,7 +55,7 @@ function Body({ confirmDialogOpen, onDlgClose }: { confirmDialogOpen: Confirmati
                 </div>
             </div>
 
-            <DialogFooter className={classNames("pt-3 flex-row", buttonCancel ? "justify-end" : "justify-center")}>
+            <DialogFooter className={classNames("pt-2 pb-3 flex-row", buttonCancel ? "justify-end" : "justify-center")}>
                 <Button variant={isDafaultOk ? "default" : "outline"} onClick={() => onDlgClose(true)} className="min-w-16">
                     {buttonOk}
                 </Button>
