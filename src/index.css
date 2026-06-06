@@ -4,6 +4,7 @@
 
 @import "@fontsource-variable/geist";
 @import '@fontsource-variable/yanone-kaffeesatz'; /* https://fontsource.org/fonts/yanone-kaffeesatz/install */
+@import '@fontsource-variable/roboto-condensed'; /* https://fontsource.org/fonts/roboto-condensed/install */
 
 /* Custom fonts */
 
@@ -22,7 +23,7 @@
 
 @theme inline {
     --font-ui: "Yanone Kaffeesatz Variable", sans-serif;
-    --font-numbers: "RobotoThin", monospace;
+    --font-numbers: "Roboto Condensed Variable", monospace;
 }
 
 /* Standard shadcn */

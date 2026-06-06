@@ -11,6 +11,9 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.2.9
         version: 5.2.9
+      '@fontsource-variable/roboto-condensed':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource-variable/yanone-kaffeesatz':
         specifier: ^5.2.7
         version: 5.2.7
@@ -451,6 +454,9 @@ packages:
 
   '@fontsource-variable/geist@5.2.9':
     resolution: {integrity: sha512-TP+QSBG3wxKGPE33CbMy/L0Nu3qvJ6Fy81Yc4LnQ95xH+i+cfEp8fyU8/kfV14YwszxIFPhnoMTbjL71waVpyQ==}
+
+  '@fontsource-variable/roboto-condensed@5.2.8':
+    resolution: {integrity: sha512-aIZ2kYSoJHkTI4z8x/PRgKX6Zb9TTtSE/u+fUYeiwL+5trP9rhYYEEeNjRttaMqRgoDHcSueArdRZ43wf/i2Kw==}
 
   '@fontsource-variable/yanone-kaffeesatz@5.2.7':
     resolution: {integrity: sha512-MkpBIw/2ha94im8laumzwIGEqUmUdZnLLlpilIxvt++1otXOGMorzkbIOyVcO9FgRaBvmOE6RnmQenTPCfsgVw==}
@@ -3618,6 +3624,8 @@ snapshots:
   '@floating-ui/utils@0.2.11': {}
 
   '@fontsource-variable/geist@5.2.9': {}
+
+  '@fontsource-variable/roboto-condensed@5.2.8': {}
 
   '@fontsource-variable/yanone-kaffeesatz@5.2.7': {}
 
