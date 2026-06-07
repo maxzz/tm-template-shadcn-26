@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { type ContextMenuItem, type ContextMenuOpenContext } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
 import { Input } from "@/ui/shadcn/input";
 import { SearchIcon } from "lucide-react";
@@ -48,7 +49,7 @@ export function PierreTreesExplorer() {
                 : undefined,
         renderRowDecoration:
             showDecorations
-                ? ({ item }) => {
+                ? ({ item }: { item: ContextMenuItem }) => {
                     if (item.path.endsWith('.tsx')) {
                         return { text: 'React', title: 'React Component' };
                     }
@@ -149,7 +150,7 @@ export function PierreTreesExplorer() {
                     } as React.CSSProperties}
                     key={`${density}-${iconSet}`}
                     renderContextMenu={
-                        (item, context) => (
+                        (item: ContextMenuItem, context: ContextMenuOpenContext) => (
                             <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">
                                 <button
                                     className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
