@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react";
+import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
 import { Input } from "@/ui/shadcn/input";
 import { SearchIcon } from "lucide-react";
 import { notice } from "@/ui/local-ui/7-toaster";
@@ -21,7 +21,7 @@ export function PierreTreesExplorer() {
     // Initialize the file tree model
     const { model } = useFileTree({
         paths,
-        search: true,
+        //search: true,
         fileTreeSearchMode: 'hide-non-matches',
         initialExpandedPaths: ['src', 'src/components', 'src/components/2-main', 'src/components/2-main/xyz-demos'],
         density,
@@ -44,7 +44,8 @@ export function PierreTreesExplorer() {
                     { path: 'package.json', status: 'modified' },
                     { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
                     { path: 'README.md', status: 'untracked' },
-                ] : undefined,
+                ] 
+                : undefined,
         renderRowDecoration:
             showDecorations
                 ? ({ item }) => {
@@ -58,7 +59,8 @@ export function PierreTreesExplorer() {
                         return { text: 'DOC', title: 'Documentation' };
                     }
                     return null;
-                } : undefined,
+                } 
+                : undefined,
     });
 
     const selectedPaths = useFileTreeSelection(model);
@@ -113,27 +115,29 @@ export function PierreTreesExplorer() {
 
     return (<>
         <div className="flex items-center gap-2">
+
             <div className="relative flex-1">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                 <Input
+                    className="pl-9 h-9"
+                    placeholder="Search files (e.g. 'dialog', 'ui')..."
                     value={search.value}
                     onChange={(e) => search.setValue(e.target.value)}
-                    placeholder="Search files (e.g. 'dialog', 'ui')..."
-                    className="pl-9 h-9"
                 />
             </div>
         </div>
 
-        <div className="border rounded-lg bg-background/50 overflow-hidden">
+        <div className="bg-background/50 border rounded-md overflow-hidden">
+            
             <div className="px-3 py-2 border-b bg-muted/30 flex items-center justify-between text-xs font-medium text-muted-foreground">
                 <span>WORKSPACE EXPLORER</span>
                 <span>Right-click items for actions</span>
             </div>
+
             <div className="p-2">
                 <FileTree
-                    key={`${density}-${iconSet}`}
                     model={model}
-                    className="rounded-md border bg-background"
+                    className="bg-background border rounded-md"
                     style={{
                         height: '350px',
                         '--trees-theme-list-active-selection-bg': 'var(--color-trees-active-selection-bg)',
@@ -143,40 +147,27 @@ export function PierreTreesExplorer() {
                         '--trees-theme-font-family': 'var(--font-trees-font-family)',
                         '--trees-theme-font-size': 'var(--text-trees-font-size)',
                     } as React.CSSProperties}
+                    key={`${density}-${iconSet}`}
                     renderContextMenu={
                         (item, context) => (
-                            <div className="flex flex-col min-w-[120px] rounded-md border bg-popover p-1 shadow-md text-xs text-popover-foreground">
+                            <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">
                                 <button
-                                    onClick={() => {
-                                        context.close({ restoreFocus: true });
-                                        model.startRenaming(item.path);
-                                    }}
-                                    className="px-2 py-1.5 text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                    type="button"
+                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                                    onClick={() => { context.close({ restoreFocus: true }); model.startRenaming(item.path); }}
                                 >
                                     Rename File
                                 </button>
 
                                 <button
-                                    onClick={() => {
-                                        context.close({ restoreFocus: true });
-                                        const handle = model.getItem(item.path);
-                                        handle?.toggleSelect();
-                                    }}
-                                    className="px-2 py-1.5 text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                    type="button"
+                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                                    onClick={() => { context.close({ restoreFocus: true }); const handle = model.getItem(item.path); handle?.toggleSelect(); }}
                                 >
                                     Toggle Select
                                 </button>
 
                                 <button
-                                    onClick={() => {
-                                        context.close({ restoreFocus: true });
-                                        addLog(`Context action on: ${item.path}`);
-                                        notice.info(`Selected ${item.path} from menu`);
-                                    }}
-                                    className="px-2 py-1.5 text-left rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                    type="button"
+                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                                    onClick={() => { context.close({ restoreFocus: true }); addLog(`Context action on: ${item.path}`); notice.info(`Selected ${item.path} from menu`); }}
                                 >
                                     Log Path
                                 </button>
