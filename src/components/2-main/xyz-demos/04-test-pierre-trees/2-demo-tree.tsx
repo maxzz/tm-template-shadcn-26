@@ -1,23 +1,23 @@
 import { useEffect, useRef } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { SearchIcon } from "lucide-react";
+import { Input } from "@/ui/shadcn/input";
+import { notice } from "@/ui/local-ui/7-toaster";
 import { type ContextMenuItem, type ContextMenuOpenContext } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
-import { Input } from "@/ui/shadcn/input";
-import { SearchIcon } from "lucide-react";
-import { notice } from "@/ui/local-ui/7-toaster";
-import { useAtomValue, useSetAtom } from "jotai";
 import { pathsAtom, densityAtom, iconSetAtom, showGitStatusAtom, showDecorationsAtom, addLogAtom, fileTreeModelAtom, selectedPathsAtom } from "./4-atoms";
 
 export function PierreTreesExplorer() {
-    const paths = useAtomValue(pathsAtom);
+    const [paths, setPaths] = useAtom(pathsAtom);
+
     const density = useAtomValue(densityAtom);
     const iconSet = useAtomValue(iconSetAtom);
     const showGitStatus = useAtomValue(showGitStatusAtom);
     const showDecorations = useAtomValue(showDecorationsAtom);
 
-    const setPaths = useSetAtom(pathsAtom);
-    const addLog = useSetAtom(addLogAtom);
     const setFileTreeModel = useSetAtom(fileTreeModelAtom);
     const setSelectedPaths = useSetAtom(selectedPathsAtom);
+    const addLog = useSetAtom(addLogAtom);
 
     // Initialize the file tree model
     const { model } = useFileTree({
