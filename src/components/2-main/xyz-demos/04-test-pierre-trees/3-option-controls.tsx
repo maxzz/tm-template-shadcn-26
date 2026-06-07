@@ -97,96 +97,11 @@ export function PierreTreesOptions() {
         <div className="flex flex-col gap-4">
             {/* Controls Card */}
             <div className="border rounded-lg p-4 bg-muted/10 flex flex-col gap-4">
-            
+
                 <h3 className="text-sm font-semibold flex items-center gap-1.5">
                     <SettingsIcon className="w-4 h-4 text-muted-foreground" />
                     Tree Configuration & Controls
                 </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Layout & Style */}
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Density</span>
-                        <div className="flex gap-1.5">
-                            {(['compact', 'default', 'relaxed'] as const).map(
-                                (d) => (
-                                    <Button className="flex-1 capitalize text-xs h-8" variant={density === d ? "default" : "outline"} size="sm" onClick={() => setDensity(d)} key={d}>
-                                        {d}
-                                    </Button>
-                                )
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
-                        <div className="flex gap-1.5">
-                            {(['minimal', 'standard', 'complete'] as const).map(
-                                (i) => (
-                                    <Button className="flex-1 capitalize text-xs h-8" variant={iconSet === i ? "default" : "outline"} size="sm" onClick={() => setIconSet(i)} key={i}>
-                                        {i}
-                                    </Button>
-                                )
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-                    {/* Programmatic Actions */}
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
-                        <div className="flex gap-2">
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
-                                Select All
-                            </Button>
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
-                                Clear Selection
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
-                        <div className="flex gap-2">
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
-                                Expand All
-                            </Button>
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
-                                Collapse All
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap gap-4 border-t pt-4">
-                    {/* Feature Toggles */}
-                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={showGitStatus}
-                            onChange={(e) => setShowGitStatus(e.target.checked)}
-                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
-                        />
-                        <span className="flex items-center gap-1">
-                            <GitBranchIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                            Show Git Status
-                        </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={showDecorations}
-                            onChange={(e) => setShowDecorations(e.target.checked)}
-                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
-                        />
-                        <span className="flex items-center gap-1">
-                            <CheckIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                            Show Custom Decorations
-                        </span>
-                    </label>
-                </div>
 
                 {/* Theme Selection */}
                 <div className="border-t pt-4 flex flex-col gap-3">
@@ -254,11 +169,10 @@ export function PierreTreesOptions() {
                                             setThemeMode(id);
                                             addLog(`Theme mode changed to: ${label}`);
                                         }}
-                                        className={`flex-1 text-[11px] font-medium rounded-sm transition-all cursor-pointer ${
-                                            themeMode === id
-                                                ? "bg-background text-foreground shadow-xs"
-                                                : "text-muted-foreground hover:text-foreground"
-                                        }`}
+                                        className={`flex-1 text-[11px] font-medium rounded-sm transition-all cursor-pointer ${themeMode === id
+                                            ? "bg-background text-foreground shadow-xs"
+                                            : "text-muted-foreground hover:text-foreground"
+                                            }`}
                                     >
                                         {label}
                                     </button>
@@ -266,6 +180,91 @@ export function PierreTreesOptions() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Layout & Style */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Density</span>
+                        <div className="flex gap-1.5">
+                            {(['compact', 'default', 'relaxed'] as const).map(
+                                (d) => (
+                                    <Button className="flex-1 capitalize text-xs h-8" variant={density === d ? "default" : "outline"} size="sm" onClick={() => setDensity(d)} key={d}>
+                                        {d}
+                                    </Button>
+                                )
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
+                        <div className="flex gap-1.5">
+                            {(['minimal', 'standard', 'complete'] as const).map(
+                                (i) => (
+                                    <Button className="flex-1 capitalize text-xs h-8" variant={iconSet === i ? "default" : "outline"} size="sm" onClick={() => setIconSet(i)} key={i}>
+                                        {i}
+                                    </Button>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Programmatic Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
+                        <div className="flex gap-2">
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
+                                Select All
+                            </Button>
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
+                                Clear Selection
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
+                        <div className="flex gap-2">
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
+                                Expand All
+                            </Button>
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
+                                Collapse All
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Feature Toggles */}
+                <div className="flex flex-wrap gap-4 border-t pt-4">
+                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={showGitStatus}
+                            onChange={(e) => setShowGitStatus(e.target.checked)}
+                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
+                        />
+                        <span className="flex items-center gap-1">
+                            <GitBranchIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                            Show Git Status
+                        </span>
+                    </label>
+
+                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={showDecorations}
+                            onChange={(e) => setShowDecorations(e.target.checked)}
+                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
+                        />
+                        <span className="flex items-center gap-1">
+                            <CheckIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                            Show Custom Decorations
+                        </span>
+                    </label>
                 </div>
 
             </div>
