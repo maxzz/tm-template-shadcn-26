@@ -45,11 +45,11 @@ export function PierreTreesExplorer() {
                     { path: 'package.json', status: 'modified' },
                     { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
                     { path: 'README.md', status: 'untracked' },
-                ] 
+                ]
                 : undefined,
         renderRowDecoration:
             showDecorations
-                ? ({ item }: { item: ContextMenuItem }) => {
+                ? ({ item }: { item: ContextMenuItem; }) => {
                     if (item.path.endsWith('.tsx')) {
                         return { text: 'React', title: 'React Component' };
                     }
@@ -60,7 +60,7 @@ export function PierreTreesExplorer() {
                         return { text: 'DOC', title: 'Documentation' };
                     }
                     return null;
-                } 
+                }
                 : undefined,
     });
 
@@ -88,11 +88,13 @@ export function PierreTreesExplorer() {
     const prevGitStatusRef = useRef<boolean>(showGitStatus);
     useEffect(
         () => {
-            model.setGitStatus(showGitStatus ? [
-                { path: 'package.json', status: 'modified' },
-                { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
-                { path: 'README.md', status: 'untracked' },
-            ] : undefined);
+            model.setGitStatus(showGitStatus
+                ? [
+                    { path: 'package.json', status: 'modified' },
+                    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
+                    { path: 'README.md', status: 'untracked' },
+                ]
+                : undefined);
 
             if (prevGitStatusRef.current !== showGitStatus) {
                 prevGitStatusRef.current = showGitStatus;
@@ -129,7 +131,7 @@ export function PierreTreesExplorer() {
         </div>
 
         <div className="bg-background/50 border rounded-md overflow-hidden">
-            
+
             <div className="px-3 py-2 border-b bg-muted/30 flex items-center justify-between text-xs font-medium text-muted-foreground">
                 <span>WORKSPACE EXPLORER</span>
                 <span>Right-click items for actions</span>
@@ -138,7 +140,7 @@ export function PierreTreesExplorer() {
             <div className="p-2">
                 <FileTree
                     model={model}
-                    className="bg-background border rounded-md"
+                    className="bg-muted border rounded-md"
                     style={{
                         height: '350px',
                         '--trees-theme-list-active-selection-bg': 'var(--color-trees-active-selection-bg)',
