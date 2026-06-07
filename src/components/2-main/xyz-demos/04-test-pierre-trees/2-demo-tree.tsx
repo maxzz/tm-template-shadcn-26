@@ -136,12 +136,12 @@ export function PierreTreesExplorer() {
                     className="rounded-md border bg-background"
                     style={{
                         height: '350px',
-                        '--trees-theme-list-active-selection-bg': 'var(--trees-active-selection-bg)',
-                        '--trees-theme-list-active-selection-fg': 'var(--trees-active-selection-fg)',
-                        '--trees-theme-list-hover-bg': 'var(--trees-hover-bg)',
-                        '--trees-theme-focus-ring': 'var(--trees-focus-ring)',
-                        '--trees-theme-font-family': 'var(--trees-font-family)',
-                        '--trees-theme-font-size': 'var(--trees-font-size)',
+                        '--trees-theme-list-active-selection-bg': 'var(--color-trees-active-selection-bg)',
+                        '--trees-theme-list-active-selection-fg': 'var(--color-trees-active-selection-fg)',
+                        '--trees-theme-list-hover-bg': 'var(--color-trees-hover-bg)',
+                        '--trees-theme-focus-ring': 'var(--color-trees-focus-ring)',
+                        '--trees-theme-font-family': 'var(--font-trees-font-family)',
+                        '--trees-theme-font-size': 'var(--text-trees-font-size)',
                     } as React.CSSProperties}
                     renderContextMenu={
                         (item, context) => (
