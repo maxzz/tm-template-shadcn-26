@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react";
 import { Input } from "@/ui/shadcn/input";
 import { Button } from "@/ui/shadcn/button";
@@ -79,6 +79,11 @@ export function TestPierreTrees() {
     const selectedPaths = useFileTreeSelection(model);
     const search = useFileTreeSearch(model);
 
+    // Refs to track previous values and avoid infinite loops / initial mount logging
+    const prevGitStatusRef = useRef<boolean>(showGitStatus);
+    const prevIconSetRef = useRef<string>(iconSet);
+    const prevSelectedPathsRef = useRef<readonly string[]>([]);
+
     // Sync git status state to model when it changes
     useEffect(() => {
         model.setGitStatus(showGitStatus ? [
@@ -86,21 +91,39 @@ export function TestPierreTrees() {
             { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees.tsx', status: 'added' },
             { path: 'README.md', status: 'untracked' },
         ] : undefined);
-        addLog(`Git status toggled: ${showGitStatus ? 'ON' : 'OFF'}`);
+        
+        if (prevGitStatusRef.current !== showGitStatus) {
+            prevGitStatusRef.current = showGitStatus;
+            addLog(`Git status toggled: ${showGitStatus ? 'ON' : 'OFF'}`);
+        }
     }, [showGitStatus, model]);
 
     // Sync icon set state to model when it changes
     useEffect(() => {
         model.setIcons(iconSet);
-        addLog(`Icon set changed to: ${iconSet}`);
+        
+        if (prevIconSetRef.current !== iconSet) {
+            prevIconSetRef.current = iconSet;
+            addLog(`Icon set changed to: ${iconSet}`);
+        }
     }, [iconSet, model]);
 
-    // Handle selection notifications
+    // Handle selection notifications safely to prevent infinite render loops
     useEffect(() => {
-        if (selectedPaths.length > 0) {
-            addLog(`Selection changed: ${selectedPaths.length} items selected`);
-        } else {
-            addLog(`Selection cleared`);
+        const prevSelected = prevSelectedPathsRef.current;
+        const hasChanged = prevSelected.length !== selectedPaths.length ||
+            prevSelected.some((val, i) => val !== selectedPaths[i]);
+
+        if (hasChanged) {
+            prevSelectedPathsRef.current = selectedPaths;
+            // Skip logging on initial empty selection mount
+            if (prevSelected.length > 0 || selectedPaths.length > 0) {
+                if (selectedPaths.length > 0) {
+                    addLog(`Selection changed: ${selectedPaths.length} items selected`);
+                } else {
+                    addLog(`Selection cleared`);
+                }
+            }
         }
     }, [selectedPaths]);
 
