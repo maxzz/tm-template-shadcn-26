@@ -1,4 +1,4 @@
-import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog } from "./xyz-demos";
+import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog, TestPierreTrees } from "./xyz-demos";
 
 export function MainBody() {
     return (
@@ -9,6 +9,8 @@ export function MainBody() {
                 <TestConfirmationDialog />
                 <TestLoginDialog />
             </div>
+
+            <TestPierreTrees />
         </main>
     );
 }
