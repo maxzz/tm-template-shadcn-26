@@ -27,6 +27,11 @@ export const iconSetAtom = atom<'minimal' | 'standard' | 'complete'>('complete')
 export const showGitStatusAtom = atom<boolean>(true);
 export const showDecorationsAtom = atom<boolean>(true);
 
+// Theming atoms
+export const lightThemeAtom = atom<string>('pierre-light');
+export const darkThemeAtom = atom<string>('pierre-dark');
+export const themeModeAtom = atom<'auto' | 'light' | 'dark'>('auto');
+
 export const logsAtom = atom<string[]>(["Tree initialized."]);
 
 // Write-only atom for adding logs with timestamps

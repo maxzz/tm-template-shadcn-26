@@ -5,7 +5,22 @@ import { Input } from "@/ui/shadcn/input";
 import { notice } from "@/ui/local-ui/7-toaster";
 import { type ContextMenuItem, type ContextMenuOpenContext } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
-import { pathsAtom, densityAtom, iconSetAtom, showGitStatusAtom, showDecorationsAtom, addLogAtom, fileTreeModelAtom, selectedPathsAtom } from "./4-atoms";
+import { useTheme } from "next-themes";
+import { themeToTreeStyles } from "@pierre/trees";
+import { LIGHT_THEMES, DARK_THEMES } from "./themes-data";
+import {
+    pathsAtom,
+    densityAtom,
+    iconSetAtom,
+    showGitStatusAtom,
+    showDecorationsAtom,
+    addLogAtom,
+    fileTreeModelAtom,
+    selectedPathsAtom,
+    lightThemeAtom,
+    darkThemeAtom,
+    themeModeAtom
+} from "./4-atoms";
 
 export function PierreTreesExplorer() {
     const [paths, setPaths] = useAtom(pathsAtom);
@@ -18,6 +33,19 @@ export function PierreTreesExplorer() {
     const setFileTreeModel = useSetAtom(fileTreeModelAtom);
     const setSelectedPaths = useSetAtom(selectedPathsAtom);
     const addLog = useSetAtom(addLogAtom);
+
+    // Theming state
+    const lightThemeKey = useAtomValue(lightThemeAtom);
+    const darkThemeKey = useAtomValue(darkThemeAtom);
+    const themeMode = useAtomValue(themeModeAtom);
+    const { resolvedTheme } = useTheme();
+
+    const isDark = themeMode === "dark" || (themeMode === "auto" && resolvedTheme === "dark");
+    const activeThemeKey = isDark ? darkThemeKey : lightThemeKey;
+    const activeTheme = isDark ? DARK_THEMES[darkThemeKey] : LIGHT_THEMES[lightThemeKey];
+
+    // Convert Shiki theme to tree CSS styles
+    const treeStyles = activeTheme ? themeToTreeStyles(activeTheme as any) : {};
 
     // Initialize the file tree model
     const { model } = useFileTree({
@@ -149,8 +177,9 @@ export function PierreTreesExplorer() {
                         '--trees-theme-focus-ring': 'var(--color-trees-focus-ring)',
                         '--trees-theme-font-family': 'var(--font-trees-font-family)',
                         '--trees-theme-font-size': 'var(--text-trees-font-size)',
+                        ...treeStyles,
                     } as React.CSSProperties}
-                    key={`${density}-${iconSet}`}
+                    key={`${density}-${iconSet}-${activeThemeKey}-${themeMode}`}
                     renderContextMenu={
                         (item: ContextMenuItem, context: ContextMenuOpenContext) => (
                             <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/ui/shadcn/button";
 import { CheckIcon, GitBranchIcon, SettingsIcon } from "lucide-react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { LIGHT_THEMES, DARK_THEMES } from "./themes-data";
 import {
     pathsAtom,
     densityAtom,
@@ -11,7 +12,10 @@ import {
     logsAtom,
     addLogAtom,
     fileTreeModelAtom,
-    selectedPathsAtom
+    selectedPathsAtom,
+    lightThemeAtom,
+    darkThemeAtom,
+    themeModeAtom
 } from "./4-atoms";
 
 export function PierreTreesOptions() {
@@ -19,6 +23,10 @@ export function PierreTreesOptions() {
     const [iconSet, setIconSet] = useAtom(iconSetAtom);
     const [showGitStatus, setShowGitStatus] = useAtom(showGitStatusAtom);
     const [showDecorations, setShowDecorations] = useAtom(showDecorationsAtom);
+
+    const [lightTheme, setLightTheme] = useAtom(lightThemeAtom);
+    const [darkTheme, setDarkTheme] = useAtom(darkThemeAtom);
+    const [themeMode, setThemeMode] = useAtom(themeModeAtom);
 
     const paths = useAtomValue(pathsAtom);
     const selectedPaths = useAtomValue(selectedPathsAtom);
@@ -178,6 +186,86 @@ export function PierreTreesOptions() {
                             Show Custom Decorations
                         </span>
                     </label>
+                </div>
+
+                {/* Theme Selection */}
+                <div className="border-t pt-4 flex flex-col gap-3">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Shiki / VS Code Theme
+                    </span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                        {/* Light Theme Select */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                                ☀️ Light Theme
+                            </label>
+                            <select
+                                value={lightTheme}
+                                onChange={(e) => {
+                                    setLightTheme(e.target.value);
+                                    addLog(`Light theme changed to: ${e.target.value}`);
+                                }}
+                                className="w-full h-8 px-2 text-xs rounded-md border border-input bg-background text-foreground shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                            >
+                                {Object.entries(LIGHT_THEMES).map(([key, theme]) => (
+                                    <option key={key} value={key}>
+                                        {theme.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Dark Theme Select */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                                🌙 Dark Theme
+                            </label>
+                            <select
+                                value={darkTheme}
+                                onChange={(e) => {
+                                    setDarkTheme(e.target.value);
+                                    addLog(`Dark theme changed to: ${e.target.value}`);
+                                }}
+                                className="w-full h-8 px-2 text-xs rounded-md border border-input bg-background text-foreground shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                            >
+                                {Object.entries(DARK_THEMES).map(([key, theme]) => (
+                                    <option key={key} value={key}>
+                                        {theme.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Theme Mode Buttons */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[11px] font-medium text-muted-foreground">
+                                Theme Mode
+                            </label>
+                            <div className="flex gap-1 bg-muted/50 p-0.5 rounded-md border border-input h-8">
+                                {([
+                                    { id: 'auto', label: 'Auto' },
+                                    { id: 'light', label: 'Light' },
+                                    { id: 'dark', label: 'Dark' }
+                                ] as const).map(({ id, label }) => (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        onClick={() => {
+                                            setThemeMode(id);
+                                            addLog(`Theme mode changed to: ${label}`);
+                                        }}
+                                        className={`flex-1 text-[11px] font-medium rounded-sm transition-all cursor-pointer ${
+                                            themeMode === id
+                                                ? "bg-background text-foreground shadow-xs"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        }`}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
