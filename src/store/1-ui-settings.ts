@@ -10,12 +10,14 @@ export interface AppSettings {
     theme: ThemeMode;            // Theme mode
     showFooter: boolean;         // Show footer in main layout
     panelSizes: PanelSizes;      // ResizablePanelGroup panel sizes
+    expandedSections: string[];  // Expanded accordion sections by name
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
     theme: 'light',
     showFooter: true,
     panelSizes: getValidPanelSizes(),
+    expandedSections: ['resizable-panels', 'pierre-trees'],
 };
 
 // Load settings from localStorage
@@ -31,6 +33,7 @@ function loadSettings(): AppSettings {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
                 panelSizes: getValidPanelSizes(parsed.panelSizes),
+                expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
             };
         }
     } catch (e) {
