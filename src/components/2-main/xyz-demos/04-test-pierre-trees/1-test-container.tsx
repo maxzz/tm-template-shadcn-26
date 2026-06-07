@@ -4,16 +4,11 @@ import { notice } from "@/ui/local-ui/7-toaster";
 import { useAtomValue, useSetAtom } from "jotai";
 import { PierreTreesExplorer } from "./2-demo-tree";
 import { PierreTreesOptions } from "./3-option-controls";
-import {
-    pathsAtom,
-    fileTreeModelAtom,
-    addLogAtom,
-    INITIAL_DEMO_PATHS
-} from "./4-atoms";
+import { pathsAtom, fileTreeModelAtom, addLogAtom, INITIAL_DEMO_PATHS } from "./4-atoms";
 
 export function TestPierreTrees() {
     return (
-        <div className="flex flex-col gap-4 p-4 border rounded-xl bg-card text-card-foreground shadow-sm">
+        <div className="p-4 bg-card text-card-foreground border rounded-xl shadow-sm flex flex-col gap-4">
             <PierreTreesHeader />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -36,14 +31,15 @@ function PierreTreesHeader() {
     const model = useAtomValue(fileTreeModelAtom);
     const addLog = useSetAtom(addLogAtom);
 
-    const handleResetPaths = () => {
+    function handleResetPaths() {
         setPaths(INITIAL_DEMO_PATHS);
         if (model) {
             model.resetPaths(INITIAL_DEMO_PATHS);
         }
+        
         addLog("Reset tree paths to initial state");
         notice.info("Reset tree paths");
-    };
+    }
 
     return (
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
@@ -56,6 +52,7 @@ function PierreTreesHeader() {
                     A high-performance, customizable file tree component from <code className="bg-muted px-1 py-0.5 rounded text-primary">@pierre/trees</code>.
                 </p>
             </div>
+
             <Button variant="outline" size="sm" onClick={handleResetPaths} className="flex items-center gap-1.5">
                 <RefreshCwIcon className="w-3.5 h-3.5" />
                 Reset Demo

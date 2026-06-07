@@ -20,10 +20,12 @@ export const INITIAL_DEMO_PATHS = [
 ];
 
 export const pathsAtom = atom<string[]>(INITIAL_DEMO_PATHS);
+
 export const densityAtom = atom<'compact' | 'default' | 'relaxed'>('default');
 export const iconSetAtom = atom<'minimal' | 'standard' | 'complete'>('complete');
 export const showGitStatusAtom = atom<boolean>(true);
 export const showDecorationsAtom = atom<boolean>(true);
+
 export const logsAtom = atom<string[]>(["Tree initialized."]);
 
 // Write-only atom for adding logs with timestamps

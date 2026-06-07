@@ -28,40 +28,42 @@ export function PierreTreesOptions() {
 
     // Handle selection notifications safely to prevent infinite render loops
     const prevSelectedPathsRef = useRef<readonly string[]>([]);
-    useEffect(() => {
-        const prevSelected = prevSelectedPathsRef.current;
-        const hasChanged = prevSelected.length !== selectedPaths.length ||
-            prevSelected.some((val, i) => val !== selectedPaths[i]);
+    useEffect(
+        () => {
+            const prevSelected = prevSelectedPathsRef.current;
+            const hasChanged = prevSelected.length !== selectedPaths.length ||
+                prevSelected.some((val, i) => val !== selectedPaths[i]);
 
-        if (hasChanged) {
-            prevSelectedPathsRef.current = selectedPaths;
-            if (prevSelected.length > 0 || selectedPaths.length > 0) {
-                if (selectedPaths.length > 0) {
-                    addLog(`Selection changed: ${selectedPaths.length} items selected`);
-                } else {
-                    addLog(`Selection cleared`);
+            if (hasChanged) {
+                prevSelectedPathsRef.current = selectedPaths;
+                if (prevSelected.length > 0 || selectedPaths.length > 0) {
+                    if (selectedPaths.length > 0) {
+                        addLog(`Selection changed: ${selectedPaths.length} items selected`);
+                    } else {
+                        addLog(`Selection cleared`);
+                    }
                 }
             }
-        }
-    }, [selectedPaths, addLog]);
+        },
+        [selectedPaths, addLog]);
 
-    const handleSelectAll = () => {
+    function handleSelectAll() {
         if (!model) return;
         paths.forEach(path => {
             model.getItem(path)?.select();
         });
         addLog("Selected all items");
-    };
+    }
 
-    const handleClearSelection = () => {
+    function handleClearSelection() {
         if (!model) return;
         paths.forEach(path => {
             model.getItem(path)?.deselect();
         });
         addLog("Cleared selection");
-    };
+    }
 
-    const handleExpandAll = () => {
+    function handleExpandAll() {
         if (!model) return;
         paths.forEach(path => {
             const item = model.getItem(path);
@@ -70,9 +72,9 @@ export function PierreTreesOptions() {
             }
         });
         addLog("Expanded all directories");
-    };
+    }
 
-    const handleCollapseAll = () => {
+    function handleCollapseAll() {
         if (!model) return;
         paths.forEach(path => {
             const item = model.getItem(path);
@@ -81,12 +83,13 @@ export function PierreTreesOptions() {
             }
         });
         addLog("Collapsed all directories");
-    };
+    }
 
     return (
         <div className="flex flex-col gap-4">
             {/* Controls Card */}
             <div className="border rounded-lg p-4 bg-muted/10 flex flex-col gap-4">
+            
                 <h3 className="text-sm font-semibold flex items-center gap-1.5">
                     <SettingsIcon className="w-4 h-4 text-muted-foreground" />
                     Tree Configuration & Controls
@@ -97,34 +100,26 @@ export function PierreTreesOptions() {
                     <div className="flex flex-col gap-2">
                         <span className="text-xs font-medium text-muted-foreground">Density</span>
                         <div className="flex gap-1.5">
-                            {(['compact', 'default', 'relaxed'] as const).map((d) => (
-                                <Button
-                                    key={d}
-                                    variant={density === d ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setDensity(d)}
-                                    className="flex-1 capitalize text-xs h-8"
-                                >
-                                    {d}
-                                </Button>
-                            ))}
+                            {(['compact', 'default', 'relaxed'] as const).map(
+                                (d) => (
+                                    <Button className="flex-1 capitalize text-xs h-8" variant={density === d ? "default" : "outline"} size="sm" onClick={() => setDensity(d)} key={d}>
+                                        {d}
+                                    </Button>
+                                )
+                            )}
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
                         <div className="flex gap-1.5">
-                            {(['minimal', 'standard', 'complete'] as const).map((i) => (
-                                <Button
-                                    key={i}
-                                    variant={iconSet === i ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setIconSet(i)}
-                                    className="flex-1 capitalize text-xs h-8"
-                                >
-                                    {i}
-                                </Button>
-                            ))}
+                            {(['minimal', 'standard', 'complete'] as const).map(
+                                (i) => (
+                                    <Button className="flex-1 capitalize text-xs h-8" variant={iconSet === i ? "default" : "outline"} size="sm" onClick={() => setIconSet(i)} key={i}>
+                                        {i}
+                                    </Button>
+                                )
+                            )}
                         </div>
                     </div>
                 </div>
@@ -134,22 +129,10 @@ export function PierreTreesOptions() {
                     <div className="flex flex-col gap-2">
                         <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
                         <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleSelectAll}
-                                className="flex-1 text-xs h-8"
-                                disabled={!model}
-                            >
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
                                 Select All
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleClearSelection}
-                                className="flex-1 text-xs h-8"
-                                disabled={!model}
-                            >
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
                                 Clear Selection
                             </Button>
                         </div>
@@ -158,22 +141,10 @@ export function PierreTreesOptions() {
                     <div className="flex flex-col gap-2">
                         <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
                         <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleExpandAll}
-                                className="flex-1 text-xs h-8"
-                                disabled={!model}
-                            >
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
                                 Expand All
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleCollapseAll}
-                                className="flex-1 text-xs h-8"
-                                disabled={!model}
-                            >
+                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
                                 Collapse All
                             </Button>
                         </div>
@@ -208,6 +179,7 @@ export function PierreTreesOptions() {
                         </span>
                     </label>
                 </div>
+
             </div>
 
             {/* Selection & Logs Panel */}
@@ -218,17 +190,19 @@ export function PierreTreesOptions() {
                         Selected Items ({selectedPaths.length})
                     </h4>
                     <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border">
-                        {selectedPaths.length === 0 ? (
-                            <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
-                        ) : (
-                            <ul className="list-disc list-inside space-y-1">
-                                {selectedPaths.map(path => (
-                                    <li key={path} className="truncate text-primary" title={path}>
-                                        {path}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                        {selectedPaths.length === 0
+                            ? (
+                                <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
+                            )
+                            : (
+                                <ul className="list-disc list-inside space-y-1">
+                                    {selectedPaths.map(path => (
+                                        <li key={path} className="truncate text-primary" title={path}>
+                                            {path}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                     </div>
                 </div>
 
@@ -238,11 +212,13 @@ export function PierreTreesOptions() {
                         Event Log (Last 20)
                     </h4>
                     <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
-                        {logs.map((log, index) => (
-                            <div key={index} className="truncate text-muted-foreground" title={log}>
-                                {log}
-                            </div>
-                        ))}
+                        {logs.map(
+                            (log, index) => (
+                                <div key={index} className="truncate text-muted-foreground" title={log}>
+                                    {log}
+                                </div>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
