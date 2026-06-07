@@ -20,11 +20,11 @@ after:-inset-x-3 \
 after:-inset-y-2 \
 \
 focus-visible:border-ring \
-focus-visible:ring-3 \
+focus-visible:ring-1 \
 focus-visible:ring-ring/50 \
 \
 aria-invalid:border-destructive \
-aria-invalid:ring-3 \
+aria-invalid:ring-1 \
 aria-invalid:ring-destructive/20 \
 \
 data-[size=default]:h-[18.4px] \

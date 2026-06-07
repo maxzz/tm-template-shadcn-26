@@ -58,7 +58,7 @@ transition-all \
 hover:underline \
 \
 focus-visible:border-ring \
-focus-visible:ring-3 \
+focus-visible:ring-1 \
 focus-visible:ring-ring/50 \
 focus-visible:after:border-ring \
 \

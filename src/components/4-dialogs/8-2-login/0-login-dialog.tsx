@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useAtom } from "jotai";
 import { Button } from "@/ui/shadcn/button";
 import { Input } from "@/ui/shadcn/input";
@@ -47,7 +47,7 @@ function Body({ loginDialogData, onDlgClose }: { loginDialogData: LoginDialogDat
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    function handleSubmit(e: FormEvent) {
+    function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
         if (!username.trim()) {
             setError("Username/Email is required");

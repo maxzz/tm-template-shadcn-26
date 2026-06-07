@@ -22,7 +22,7 @@ dark:aria-invalid:border-destructive/50 \
 dark:aria-invalid:ring-destructive/40 \
 \
 focus-visible:border-ring \
-focus-visible:ring-3 \
+focus-visible:ring-1 \
 focus-visible:ring-ring/50 \
 \
 disabled:pointer-events-none \
@@ -31,7 +31,7 @@ disabled:bg-input/50 \
 disabled:opacity-50 \
 \
 aria-invalid:border-destructive \
-aria-invalid:ring-3 \
+aria-invalid:ring-1 \
 aria-invalid:ring-destructive/20 \
 \
 file:inline-flex \
@@ -42,7 +42,7 @@ file:text-sm \
 file:font-medium \
 file:text-foreground \
 \
-rounded-lg \
+rounded-sm \
 outline-none \
 border \
 border-input \
