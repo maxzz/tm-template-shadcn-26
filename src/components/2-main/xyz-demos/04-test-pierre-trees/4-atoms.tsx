@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { type FileTree } from "@pierre/trees";
 
 export const INITIAL_DEMO_PATHS = [
     "package.json",
@@ -38,7 +39,7 @@ export const addLogAtom = atom(
 );
 
 // Atom to share the imperative FileTree model instance across components
-export const fileTreeModelAtom = atom<any | null>(null);
+export const fileTreeModelAtom = atom<FileTree | null>(null);
 
 // Atom to share the current selected paths across components
 export const selectedPathsAtom = atom<readonly string[]>([]);
