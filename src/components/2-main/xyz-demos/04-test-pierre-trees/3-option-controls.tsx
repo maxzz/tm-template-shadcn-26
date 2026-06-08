@@ -19,15 +19,8 @@ import {
 } from "./4-atoms";
 
 export function PierreTreesOptions() {
-    const [density, setDensity] = useAtom(densityAtom);
-    const [iconSet, setIconSet] = useAtom(iconSetAtom);
-    const [showGitStatus, setShowGitStatus] = useAtom(showGitStatusAtom);
-    const [showDecorations, setShowDecorations] = useAtom(showDecorationsAtom);
-
-    const paths = useAtomValue(pathsAtom);
     const selectedPaths = useAtomValue(selectedPathsAtom);
     const logs = useAtomValue(logsAtom);
-    const model = useAtomValue(fileTreeModelAtom);
     const addLog = useSetAtom(addLogAtom);
 
     // Handle selection notifications safely to prevent infinite render loops
@@ -51,44 +44,6 @@ export function PierreTreesOptions() {
         },
         [selectedPaths, addLog]);
 
-    function handleSelectAll() {
-        if (!model) return;
-        paths.forEach(path => {
-            model.getItem(path)?.select();
-        });
-        addLog("Selected all items");
-    }
-
-    function handleClearSelection() {
-        if (!model) return;
-        paths.forEach(path => {
-            model.getItem(path)?.deselect();
-        });
-        addLog("Cleared selection");
-    }
-
-    function handleExpandAll() {
-        if (!model) return;
-        paths.forEach(path => {
-            const item = model.getItem(path);
-            if (item && 'expand' in item && typeof item.expand === 'function') {
-                item.expand();
-            }
-        });
-        addLog("Expanded all directories");
-    }
-
-    function handleCollapseAll() {
-        if (!model) return;
-        paths.forEach(path => {
-            const item = model.getItem(path);
-            if (item && 'collapse' in item && typeof item.collapse === 'function') {
-                item.collapse();
-            }
-        });
-        addLog("Collapsed all directories");
-    }
-
     return (
         <div className="flex flex-col gap-4">
             {/* Controls Card */}
@@ -100,92 +55,9 @@ export function PierreTreesOptions() {
                 </h3>
 
                 <TreeThemeControls />
-
-                {/* Layout & Style */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Density</span>
-                        <div className="flex gap-1.5">
-                            {(['compact', 'default', 'relaxed'] as const).map(
-                                (d) => (
-                                    <Button className="flex-1 capitalize text-xs h-8" variant={density === d ? "default" : "outline"} size="sm" onClick={() => setDensity(d)} key={d}>
-                                        {d}
-                                    </Button>
-                                )
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
-                        <div className="flex gap-1.5">
-                            {(['minimal', 'standard', 'complete'] as const).map(
-                                (i) => (
-                                    <Button className="flex-1 capitalize text-xs h-8" variant={iconSet === i ? "default" : "outline"} size="sm" onClick={() => setIconSet(i)} key={i}>
-                                        {i}
-                                    </Button>
-                                )
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Programmatic Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
-                        <div className="flex gap-2">
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
-                                Select All
-                            </Button>
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
-                                Clear Selection
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
-                        <div className="flex gap-2">
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
-                                Expand All
-                            </Button>
-                            <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
-                                Collapse All
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Feature Toggles */}
-                <div className="flex flex-wrap gap-4 border-t pt-4">
-                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={showGitStatus}
-                            onChange={(e) => setShowGitStatus(e.target.checked)}
-                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
-                        />
-                        <span className="flex items-center gap-1">
-                            <GitBranchIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                            Show Git Status
-                        </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
-                        <input
-                            type="checkbox"
-                            checked={showDecorations}
-                            onChange={(e) => setShowDecorations(e.target.checked)}
-                            className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
-                        />
-                        <span className="flex items-center gap-1">
-                            <CheckIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                            Show Custom Decorations
-                        </span>
-                    </label>
-                </div>
-
+                <TreeLayoutStyleControls />
+                <TreeProgrammaticActions />
+                <TreeFeatureToggles />
             </div>
 
             {/* Selection & Logs Panel */}
@@ -313,6 +185,156 @@ function TreeThemeControls() {
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function TreeLayoutStyleControls() {
+    const [density, setDensity] = useAtom(densityAtom);
+    const [iconSet, setIconSet] = useAtom(iconSetAtom);
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Density</span>
+                <div className="flex gap-1.5">
+                    {(['compact', 'default', 'relaxed'] as const).map((d) => (
+                        <Button
+                            className="flex-1 capitalize text-xs h-8"
+                            variant={density === d ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setDensity(d)}
+                            key={d}
+                        >
+                            {d}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
+                <div className="flex gap-1.5">
+                    {(['minimal', 'standard', 'complete'] as const).map((i) => (
+                        <Button
+                            className="flex-1 capitalize text-xs h-8"
+                            variant={iconSet === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setIconSet(i)}
+                            key={i}
+                        >
+                            {i}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function TreeProgrammaticActions() {
+    const paths = useAtomValue(pathsAtom);
+    const model = useAtomValue(fileTreeModelAtom);
+    const addLog = useSetAtom(addLogAtom);
+
+    function handleSelectAll() {
+        if (!model) return;
+        paths.forEach(path => {
+            model.getItem(path)?.select();
+        });
+        addLog("Selected all items");
+    }
+
+    function handleClearSelection() {
+        if (!model) return;
+        paths.forEach(path => {
+            model.getItem(path)?.deselect();
+        });
+        addLog("Cleared selection");
+    }
+
+    function handleExpandAll() {
+        if (!model) return;
+        paths.forEach(path => {
+            const item = model.getItem(path);
+            if (item && 'expand' in item && typeof item.expand === 'function') {
+                item.expand();
+            }
+        });
+        addLog("Expanded all directories");
+    }
+
+    function handleCollapseAll() {
+        if (!model) return;
+        paths.forEach(path => {
+            const item = model.getItem(path);
+            if (item && 'collapse' in item && typeof item.collapse === 'function') {
+                item.collapse();
+            }
+        });
+        addLog("Collapsed all directories");
+    }
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+            <div className="flex flex-col gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
+                <div className="flex gap-2">
+                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
+                        Select All
+                    </Button>
+                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
+                        Clear Selection
+                    </Button>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
+                <div className="flex gap-2">
+                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
+                        Expand All
+                    </Button>
+                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
+                        Collapse All
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function TreeFeatureToggles() {
+    const [showGitStatus, setShowGitStatus] = useAtom(showGitStatusAtom);
+    const [showDecorations, setShowDecorations] = useAtom(showDecorationsAtom);
+
+    return (
+        <div className="flex flex-wrap gap-4 border-t pt-4">
+            <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
+                <input
+                    type="checkbox"
+                    checked={showGitStatus}
+                    onChange={(e) => setShowGitStatus(e.target.checked)}
+                    className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
+                />
+                <span className="flex items-center gap-1">
+                    <GitBranchIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    Show Git Status
+                </span>
+            </label>
+
+            <label className="flex items-center gap-2 text-xs font-medium cursor-pointer select-none">
+                <input
+                    type="checkbox"
+                    checked={showDecorations}
+                    onChange={(e) => setShowDecorations(e.target.checked)}
+                    className="rounded border-gray-300 text-primary focus:ring-primary h-3.5 w-3.5"
+                />
+                <span className="flex items-center gap-1">
+                    <CheckIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    Show Custom Decorations
+                </span>
+            </label>
         </div>
     );
 }
