@@ -21,8 +21,7 @@ import {
 export function PierreTreesOptions() {
     return (
         <div className="flex flex-col gap-4">
-            {/* Controls Card */}
-            <div className="border rounded-lg p-4 bg-muted/10 flex flex-col gap-4">
+            <div className="p-4 bg-muted/10 border rounded-lg flex flex-col gap-4">
 
                 <h3 className="text-sm font-semibold flex items-center gap-1.5">
                     <SettingsIcon className="w-4 h-4 text-muted-foreground" />
@@ -99,6 +98,7 @@ function TreeEventLogPanel() {
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Event Log (Last 20)
             </h4>
+
             <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
                 {logs.map((log, index) => (
                     <div key={index} className="truncate text-muted-foreground" title={log}>
@@ -118,9 +118,9 @@ function TreeThemeControls() {
 
     return (
         <div className="border-t pt-4 flex flex-col gap-3">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {/* <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Shiki / VS Code Theme
-            </span>
+            </span> */}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                 <div className="flex flex-col gap-1.5">
