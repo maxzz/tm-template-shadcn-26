@@ -3,7 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { Input } from "@/ui/shadcn/input";
 import { notice } from "@/ui/local-ui/7-toaster";
-import { type ContextMenuItem, type ContextMenuOpenContext, type FileTreeRenameEvent, type FileTreeRenamingItem } from "@pierre/trees";
+import { type ContextMenuItem, type ContextMenuOpenContext, type FileTreeRenameEvent, type FileTreeRenamingItem, type FileTreeRowDecoration, type GitStatusEntry } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
 import { useTheme } from "next-themes";
 import { themeToTreeStyles } from "@pierre/trees";
@@ -55,29 +55,8 @@ export function PierreTreesExplorer() {
                 notice.error(`Rename failed: ${message}`);
             },
         },
-        gitStatus:
-            showGitStatus
-                ? [
-                    { path: 'package.json', status: 'modified' },
-                    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
-                    { path: 'README.md', status: 'untracked' },
-                ]
-                : undefined,
-        renderRowDecoration:
-            showDecorations
-                ? ({ item }: { item: ContextMenuItem; }) => {
-                    if (item.path.endsWith('.tsx')) {
-                        return { text: 'React', title: 'React Component' };
-                    }
-                    if (item.path.endsWith('.json')) {
-                        return { text: 'Config', title: 'Configuration File' };
-                    }
-                    if (item.path === 'README.md') {
-                        return { text: 'DOC', title: 'Documentation' };
-                    }
-                    return null;
-                }
-                : undefined,
+        gitStatus: showGitStatus ? gitStatusItems : undefined,
+        renderRowDecoration: showDecorations ? renderRowDecoration : undefined,
     });
 
     const selectedPaths = useFileTreeSelection(model);
@@ -104,13 +83,7 @@ export function PierreTreesExplorer() {
     const prevGitStatusRef = useRef<boolean>(showGitStatus);
     useEffect(
         () => {
-            model.setGitStatus(showGitStatus
-                ? [
-                    { path: 'package.json', status: 'modified' },
-                    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
-                    { path: 'README.md', status: 'untracked' },
-                ]
-                : undefined);
+            model.setGitStatus(showGitStatus ? gitStatusItems : undefined);
 
             if (prevGitStatusRef.current !== showGitStatus) {
                 prevGitStatusRef.current = showGitStatus;
@@ -198,3 +171,22 @@ export function PierreTreesExplorer() {
         </div>
     </>);
 }
+
+function renderRowDecoration({ item }: { item: ContextMenuItem; }): FileTreeRowDecoration | null {
+    if (item.path.endsWith('.tsx')) {
+        return { text: 'React', title: 'React Component' };
+    }
+    if (item.path.endsWith('.json')) {
+        return { text: 'Config', title: 'Configuration File' };
+    }
+    if (item.path === 'README.md') {
+        return { text: 'DOC', title: 'Documentation' };
+    }
+    return null;
+}
+
+const gitStatusItems: GitStatusEntry[] = [
+    { path: 'package.json', status: 'modified' },
+    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
+    { path: 'README.md', status: 'untracked' },
+];
