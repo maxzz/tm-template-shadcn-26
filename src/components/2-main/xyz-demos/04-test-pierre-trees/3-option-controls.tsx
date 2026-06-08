@@ -42,74 +42,6 @@ export function PierreTreesOptions() {
     );
 }
 
-function TreeSelectedItemsPanel() {
-    const selectedPaths = useAtomValue(selectedPathsAtom);
-    const addLog = useSetAtom(addLogAtom);
-
-    const prevSelectedPathsRef = useRef<readonly string[]>([]);
-    useEffect(
-        () => {
-            const prevSelected = prevSelectedPathsRef.current;
-            const hasChanged = prevSelected.length !== selectedPaths.length ||
-                prevSelected.some((val, i) => val !== selectedPaths[i]);
-
-            if (hasChanged) {
-                prevSelectedPathsRef.current = selectedPaths;
-                if (prevSelected.length > 0 || selectedPaths.length > 0) {
-                    if (selectedPaths.length > 0) {
-                        addLog(`Selection changed: ${selectedPaths.length} items selected`);
-                    } else {
-                        addLog(`Selection cleared`);
-                    }
-                }
-            }
-        },
-        [selectedPaths, addLog]);
-
-    return (
-        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Selected Items ({selectedPaths.length})
-            </h4>
-            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border">
-                {selectedPaths.length === 0
-                    ? (
-                        <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
-                    )
-                    : (
-                        <ul className="list-disc list-inside space-y-1">
-                            {selectedPaths.map(path => (
-                                <li key={path} className="truncate text-primary" title={path}>
-                                    {path}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-            </div>
-        </div>
-    );
-}
-
-function TreeEventLogPanel() {
-    const logs = useAtomValue(logsAtom);
-
-    return (
-        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Event Log (Last 20)
-            </h4>
-
-            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
-                {logs.map((log, index) => (
-                    <div key={index} className="truncate text-muted-foreground" title={log}>
-                        {log}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
 function TreeThemeControls() {
     const [lightTheme, setLightTheme] = useAtom(lightThemeAtom);
     const [darkTheme, setDarkTheme] = useAtom(darkThemeAtom);
@@ -341,6 +273,74 @@ function TreeFeatureToggles() {
                     Show Custom Decorations
                 </span>
             </label>
+        </div>
+    );
+}
+
+function TreeSelectedItemsPanel() {
+    const selectedPaths = useAtomValue(selectedPathsAtom);
+    const addLog = useSetAtom(addLogAtom);
+
+    const prevSelectedPathsRef = useRef<readonly string[]>([]);
+    useEffect(
+        () => {
+            const prevSelected = prevSelectedPathsRef.current;
+            const hasChanged = prevSelected.length !== selectedPaths.length ||
+                prevSelected.some((val, i) => val !== selectedPaths[i]);
+
+            if (hasChanged) {
+                prevSelectedPathsRef.current = selectedPaths;
+                if (prevSelected.length > 0 || selectedPaths.length > 0) {
+                    if (selectedPaths.length > 0) {
+                        addLog(`Selection changed: ${selectedPaths.length} items selected`);
+                    } else {
+                        addLog(`Selection cleared`);
+                    }
+                }
+            }
+        },
+        [selectedPaths, addLog]);
+
+    return (
+        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Selected Items ({selectedPaths.length})
+            </h4>
+            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border">
+                {selectedPaths.length === 0
+                    ? (
+                        <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
+                    )
+                    : (
+                        <ul className="list-disc list-inside space-y-1">
+                            {selectedPaths.map(path => (
+                                <li key={path} className="truncate text-primary" title={path}>
+                                    {path}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+            </div>
+        </div>
+    );
+}
+
+function TreeEventLogPanel() {
+    const logs = useAtomValue(logsAtom);
+
+    return (
+        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Event Log (Last 20)
+            </h4>
+
+            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
+                {logs.map((log, index) => (
+                    <div key={index} className="truncate text-muted-foreground" title={log}>
+                        {log}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
