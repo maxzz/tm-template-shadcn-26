@@ -19,11 +19,34 @@ import {
 } from "./4-atoms";
 
 export function PierreTreesOptions() {
+    return (
+        <div className="flex flex-col gap-4">
+            {/* Controls Card */}
+            <div className="border rounded-lg p-4 bg-muted/10 flex flex-col gap-4">
+
+                <h3 className="text-sm font-semibold flex items-center gap-1.5">
+                    <SettingsIcon className="w-4 h-4 text-muted-foreground" />
+                    Tree Configuration & Controls
+                </h3>
+
+                <TreeThemeControls />
+                <TreeLayoutStyleControls />
+                <TreeProgrammaticActions />
+                <TreeFeatureToggles />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TreeSelectedItemsPanel />
+                <TreeEventLogPanel />
+            </div>
+        </div>
+    );
+}
+
+function TreeSelectedItemsPanel() {
     const selectedPaths = useAtomValue(selectedPathsAtom);
-    const logs = useAtomValue(logsAtom);
     const addLog = useSetAtom(addLogAtom);
 
-    // Handle selection notifications safely to prevent infinite render loops
     const prevSelectedPathsRef = useRef<readonly string[]>([]);
     useEffect(
         () => {
@@ -45,60 +68,43 @@ export function PierreTreesOptions() {
         [selectedPaths, addLog]);
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* Controls Card */}
-            <div className="border rounded-lg p-4 bg-muted/10 flex flex-col gap-4">
-
-                <h3 className="text-sm font-semibold flex items-center gap-1.5">
-                    <SettingsIcon className="w-4 h-4 text-muted-foreground" />
-                    Tree Configuration & Controls
-                </h3>
-
-                <TreeThemeControls />
-                <TreeLayoutStyleControls />
-                <TreeProgrammaticActions />
-                <TreeFeatureToggles />
+        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Selected Items ({selectedPaths.length})
+            </h4>
+            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border">
+                {selectedPaths.length === 0
+                    ? (
+                        <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
+                    )
+                    : (
+                        <ul className="list-disc list-inside space-y-1">
+                            {selectedPaths.map(path => (
+                                <li key={path} className="truncate text-primary" title={path}>
+                                    {path}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
             </div>
+        </div>
+    );
+}
 
-            {/* Selection & Logs Panel */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Selection State */}
-                <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Selected Items ({selectedPaths.length})
-                    </h4>
-                    <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border">
-                        {selectedPaths.length === 0
-                            ? (
-                                <span className="text-muted-foreground italic">No items selected. Click rows or use "Select All".</span>
-                            )
-                            : (
-                                <ul className="list-disc list-inside space-y-1">
-                                    {selectedPaths.map(path => (
-                                        <li key={path} className="truncate text-primary" title={path}>
-                                            {path}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                    </div>
-                </div>
+function TreeEventLogPanel() {
+    const logs = useAtomValue(logsAtom);
 
-                {/* Event Logs */}
-                <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Event Log (Last 20)
-                    </h4>
-                    <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
-                        {logs.map(
-                            (log, index) => (
-                                <div key={index} className="truncate text-muted-foreground" title={log}>
-                                    {log}
-                                </div>
-                            )
-                        )}
+    return (
+        <div className="border rounded-lg p-4 bg-muted/5 flex flex-col gap-2 h-[180px]">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Event Log (Last 20)
+            </h4>
+            <div className="flex-1 overflow-y-auto text-xs font-mono bg-background/50 p-2 rounded border space-y-1">
+                {logs.map((log, index) => (
+                    <div key={index} className="truncate text-muted-foreground" title={log}>
+                        {log}
                     </div>
-                </div>
+                ))}
             </div>
         </div>
     );
