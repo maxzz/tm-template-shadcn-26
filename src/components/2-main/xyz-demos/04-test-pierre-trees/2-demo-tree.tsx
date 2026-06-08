@@ -147,12 +147,26 @@ export function PierreTreesExplorer() {
     </>);
 }
 
-function renderFileTreeContextMenu(
-    item: ContextMenuItem,
-    context: ContextMenuOpenContext,
-    model: FileTreeModel,
-    addLog: (message: string) => void,
-): ReactNode {
+function renderRowDecoration({ item }: { item: ContextMenuItem; }): FileTreeRowDecoration | null {
+    if (item.path.endsWith('.tsx')) {
+        return { text: 'React', title: 'React Component' };
+    }
+    if (item.path.endsWith('.json')) {
+        return { text: 'Config', title: 'Configuration File' };
+    }
+    if (item.path === 'README.md') {
+        return { text: 'DOC', title: 'Documentation' };
+    }
+    return null;
+}
+
+const gitStatusItems: GitStatusEntry[] = [
+    { path: 'package.json', status: 'modified' },
+    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
+    { path: 'README.md', status: 'untracked' },
+];
+
+function renderFileTreeContextMenu(item: ContextMenuItem, context: ContextMenuOpenContext, model: FileTreeModel, addLog: (message: string) => void,): ReactNode {
     return (
         <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">
             <button
@@ -178,22 +192,3 @@ function renderFileTreeContextMenu(
         </div>
     );
 }
-
-function renderRowDecoration({ item }: { item: ContextMenuItem; }): FileTreeRowDecoration | null {
-    if (item.path.endsWith('.tsx')) {
-        return { text: 'React', title: 'React Component' };
-    }
-    if (item.path.endsWith('.json')) {
-        return { text: 'Config', title: 'Configuration File' };
-    }
-    if (item.path === 'README.md') {
-        return { text: 'DOC', title: 'Documentation' };
-    }
-    return null;
-}
-
-const gitStatusItems: GitStatusEntry[] = [
-    { path: 'package.json', status: 'modified' },
-    { path: 'src/components/2-main/xyz-demos/04-test-pierre-trees/index.tsx', status: 'added' },
-    { path: 'README.md', status: 'untracked' },
-];
