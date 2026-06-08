@@ -128,7 +128,7 @@ export function PierreTreesExplorer() {
             <div className="p-2">
                 <FileTree
                     model={model}
-                    className="bg-muted border rounded-md"
+                    className="bg-muted border rounded **:data-item:text-red-500!" // "**:data-item:text-red-500!" will not work since tree in Shadow DOM
                     style={{
                         height: '350px',
                         '--trees-theme-list-active-selection-bg': 'var(--color-trees-active-selection-bg)',
