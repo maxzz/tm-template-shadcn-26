@@ -20,10 +20,10 @@ import {
 
 export function PierreTreesOptions() {
     return (
-        <div className="flex flex-col gap-4 font-condensed">
-            <div className="p-4 bg-muted/10 border rounded-lg flex flex-col gap-4">
+        <div className="font-condensed flex flex-col gap-4">
+            <div className="px-4 bg-muted/10 border rounded-md flex flex-col gap-4">
 
-                <h3 className="text-sm font-semibold flex items-center gap-1.5">
+                <h3 className="pt-4 text-sm font-semibold flex items-center gap-1.5">
                     <SettingsIcon className="w-4 h-4 text-muted-foreground" />
                     Tree Configuration & Controls
                 </h3>
