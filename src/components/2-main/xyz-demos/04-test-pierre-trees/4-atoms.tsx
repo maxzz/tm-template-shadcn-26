@@ -22,7 +22,7 @@ export const INITIAL_DEMO_PATHS = [
 
 export const pathsAtom = atom<string[]>(INITIAL_DEMO_PATHS);
 
-export const densityAtom = atom<'compact' | 'default' | 'relaxed'>('compact');
+export const densityAtom = atom<'compact' | 'default' | 'relaxed'>('compact'); //https://github.com/pierrecomputer/pierre/blob/main/apps/docs/app/(trees)/trees-dev/_demos/DensityDemoClient.tsx https://github.com/pierrecomputer/pierre/blob/main/apps/docs/app/(trees)/_components/DemoDensity.tsx
 export const iconSetAtom = atom<'minimal' | 'standard' | 'complete'>('complete');
 export const showGitStatusAtom = atom<boolean>(true);
 export const showDecorationsAtom = atom<boolean>(true);
