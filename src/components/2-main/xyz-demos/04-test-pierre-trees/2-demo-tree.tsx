@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { Input } from "@/ui/shadcn/input";
 import { notice } from "@/ui/local-ui/7-toaster";
-import { type ContextMenuItem, type ContextMenuOpenContext, type FileTreeRenameEvent, type FileTreeRenamingItem, type FileTreeRowDecoration, type GitStatusEntry } from "@pierre/trees";
+import { type ContextMenuItem, type ContextMenuOpenContext, type FileTree as FileTreeModel, type FileTreeRenameEvent, type FileTreeRenamingItem, type FileTreeRowDecoration, type GitStatusEntry } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
 import { useTheme } from "next-themes";
 import { themeToTreeStyles } from "@pierre/trees";
@@ -140,36 +140,43 @@ export function PierreTreesExplorer() {
                         ...treeStyles,
                     } as React.CSSProperties}
                     key={`${density}-${iconSet}-${activeThemeKey}-${themeMode}`}
-                    renderContextMenu={
-                        (item: ContextMenuItem, context: ContextMenuOpenContext) => (
-                            <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">
-                                <button
-                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
-                                    onClick={() => { context.close({ restoreFocus: true }); model.startRenaming(item.path); }}
-                                >
-                                    Rename File
-                                </button>
-
-                                <button
-                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
-                                    onClick={() => { context.close({ restoreFocus: true }); const handle = model.getItem(item.path); handle?.toggleSelect(); }}
-                                >
-                                    Toggle Select
-                                </button>
-
-                                <button
-                                    className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
-                                    onClick={() => { context.close({ restoreFocus: true }); addLog(`Context action on: ${item.path}`); notice.info(`Selected ${item.path} from menu`); }}
-                                >
-                                    Log Path
-                                </button>
-                            </div>
-                        )
-                    }
+                    renderContextMenu={(item, context) => renderFileTreeContextMenu(item, context, model, addLog)}
                 />
             </div>
         </div>
     </>);
+}
+
+function renderFileTreeContextMenu(
+    item: ContextMenuItem,
+    context: ContextMenuOpenContext,
+    model: FileTreeModel,
+    addLog: (message: string) => void,
+): ReactNode {
+    return (
+        <div className="min-w-[120px] bg-popover p-1 shadow-md text-xs text-popover-foreground border rounded-md flex flex-col">
+            <button
+                className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                onClick={() => { context.close({ restoreFocus: true }); model.startRenaming(item.path); }}
+            >
+                Rename File
+            </button>
+
+            <button
+                className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                onClick={() => { context.close({ restoreFocus: true }); const handle = model.getItem(item.path); handle?.toggleSelect(); }}
+            >
+                Toggle Select
+            </button>
+
+            <button
+                className="px-2 py-1.5 text-left hover:text-accent-foreground hover:bg-accent transition-colors rounded-sm" type="button"
+                onClick={() => { context.close({ restoreFocus: true }); addLog(`Context action on: ${item.path}`); notice.info(`Selected ${item.path} from menu`); }}
+            >
+                Log Path
+            </button>
+        </div>
+    );
 }
 
 function renderRowDecoration({ item }: { item: ContextMenuItem; }): FileTreeRowDecoration | null {
