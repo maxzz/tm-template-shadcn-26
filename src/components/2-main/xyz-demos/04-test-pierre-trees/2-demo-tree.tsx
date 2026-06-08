@@ -120,7 +120,7 @@ export function PierreTreesExplorer() {
 
         <div className="bg-background/50 border rounded-md overflow-hidden">
 
-            <div className="px-3 py-2 border-b bg-muted/30 flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <div className="px-3 py-2 border-b bg-muted/30 flex items-center justify-between text-xs font-medium text-muted-foreground font-condensed">
                 <span>WORKSPACE EXPLORER</span>
                 <span>Right-click items for actions</span>
             </div>

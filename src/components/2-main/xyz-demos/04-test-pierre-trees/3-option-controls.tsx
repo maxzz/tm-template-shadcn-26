@@ -20,7 +20,7 @@ import {
 
 export function PierreTreesOptions() {
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 font-condensed">
             <div className="p-4 bg-muted/10 border rounded-lg flex flex-col gap-4">
 
                 <h3 className="text-sm font-semibold flex items-center gap-1.5">
