@@ -3,24 +3,12 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { SearchIcon } from "lucide-react";
 import { Input } from "@/ui/shadcn/input";
 import { notice } from "@/ui/local-ui/7-toaster";
-import { type ContextMenuItem, type ContextMenuOpenContext } from "@pierre/trees";
+import { type ContextMenuItem, type ContextMenuOpenContext, type FileTreeRenameEvent, type FileTreeRenamingItem } from "@pierre/trees";
 import { FileTree, useFileTree, useFileTreeSearch, useFileTreeSelection } from "@pierre/trees/react"; // https://trees.software/docs
 import { useTheme } from "next-themes";
 import { themeToTreeStyles } from "@pierre/trees";
 import { LIGHT_THEMES, DARK_THEMES } from "./themes-data";
-import {
-    pathsAtom,
-    densityAtom,
-    iconSetAtom,
-    showGitStatusAtom,
-    showDecorationsAtom,
-    addLogAtom,
-    fileTreeModelAtom,
-    selectedPathsAtom,
-    lightThemeAtom,
-    darkThemeAtom,
-    themeModeAtom
-} from "./4-atoms";
+import { pathsAtom, densityAtom, iconSetAtom, showGitStatusAtom, showDecorationsAtom, addLogAtom, fileTreeModelAtom, selectedPathsAtom, lightThemeAtom, darkThemeAtom, themeModeAtom } from "./4-atoms";
 
 export function PierreTreesExplorer() {
     const [paths, setPaths] = useAtom(pathsAtom);
@@ -56,13 +44,13 @@ export function PierreTreesExplorer() {
         density,
         icons: iconSet,
         renaming: {
-            canRename: (item) => item.path !== 'package.json',
-            onRename: ({ sourcePath, destinationPath }: { sourcePath: string, destinationPath: string; }) => {
+            canRename: (item: FileTreeRenamingItem) => item.path !== 'package.json',
+            onRename: ({ sourcePath, destinationPath }: FileTreeRenameEvent) => {
                 setPaths(prev => prev.map(p => p === sourcePath ? destinationPath : p));
                 addLog(`Renamed: ${sourcePath} -> ${destinationPath}`);
                 notice.success(`Renamed file to ${destinationPath}`);
             },
-            onError: (message) => {
+            onError: (message: string) => {
                 addLog(`Rename error: ${message}`);
                 notice.error(`Rename failed: ${message}`);
             },
@@ -146,7 +134,6 @@ export function PierreTreesExplorer() {
 
     return (<>
         <div className="flex items-center gap-2">
-
             <div className="relative flex-1">
                 <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                 <Input
