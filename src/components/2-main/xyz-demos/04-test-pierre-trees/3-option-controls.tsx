@@ -190,6 +190,15 @@ function TreeLayoutStyleControls() {
 }
 
 function TreeProgrammaticActions() {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+            <TreeSelectionActions />
+            <TreeDirectoryActions />
+        </div>
+    );
+}
+
+function TreeSelectionActions() {
     const paths = useAtomValue(pathsAtom);
     const model = useAtomValue(fileTreeModelAtom);
     const addLog = useSetAtom(addLogAtom);
@@ -209,6 +218,26 @@ function TreeProgrammaticActions() {
         });
         addLog("Cleared selection");
     }
+
+    return (
+        <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
+            <div className="flex gap-2">
+                <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
+                    Select All
+                </Button>
+                <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
+                    Clear Selection
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+function TreeDirectoryActions() {
+    const paths = useAtomValue(pathsAtom);
+    const model = useAtomValue(fileTreeModelAtom);
+    const addLog = useSetAtom(addLogAtom);
 
     function handleExpandAll() {
         if (!model) return;
@@ -233,29 +262,15 @@ function TreeProgrammaticActions() {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-            <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-muted-foreground">Selection Actions</span>
-                <div className="flex gap-2">
-                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleSelectAll} disabled={!model}>
-                        Select All
-                    </Button>
-                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleClearSelection} disabled={!model}>
-                        Clear Selection
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
-                <div className="flex gap-2">
-                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
-                        Expand All
-                    </Button>
-                    <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
-                        Collapse All
-                    </Button>
-                </div>
+        <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Directory Actions</span>
+            <div className="flex gap-2">
+                <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleExpandAll} disabled={!model}>
+                    Expand All
+                </Button>
+                <Button className="flex-1 text-xs h-8" variant="outline" size="sm" onClick={handleCollapseAll} disabled={!model}>
+                    Collapse All
+                </Button>
             </div>
         </div>
     );
