@@ -147,43 +147,55 @@ function TreeThemeModeToggle() {
 }
 
 function TreeLayoutStyleControls() {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TreeDensityControl />
+            <TreeIconSetControl />
+        </div>
+    );
+}
+
+function TreeDensityControl() {
     const [density, setDensity] = useAtom(densityAtom);
+
+    return (
+        <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Density</span>
+            <div className="flex gap-1.5">
+                {(['compact', 'default', 'relaxed'] as const).map((d) => (
+                    <Button
+                        className="flex-1 capitalize text-xs h-8"
+                        variant={density === d ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setDensity(d)}
+                        key={d}
+                    >
+                        {d}
+                    </Button>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function TreeIconSetControl() {
     const [iconSet, setIconSet] = useAtom(iconSetAtom);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-muted-foreground">Density</span>
-                <div className="flex gap-1.5">
-                    {(['compact', 'default', 'relaxed'] as const).map((d) => (
-                        <Button
-                            className="flex-1 capitalize text-xs h-8"
-                            variant={density === d ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setDensity(d)}
-                            key={d}
-                        >
-                            {d}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
-                <div className="flex gap-1.5">
-                    {(['minimal', 'standard', 'complete'] as const).map((i) => (
-                        <Button
-                            className="flex-1 capitalize text-xs h-8"
-                            variant={iconSet === i ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setIconSet(i)}
-                            key={i}
-                        >
-                            {i}
-                        </Button>
-                    ))}
-                </div>
+        <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
+            <div className="flex gap-1.5">
+                {(['minimal', 'standard', 'complete'] as const).map((i) => (
+                    <Button
+                        className="flex-1 capitalize text-xs h-8"
+                        variant={iconSet === i ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setIconSet(i)}
+                        key={i}
+                    >
+                        {i}
+                    </Button>
+                ))}
             </div>
         </div>
     );
