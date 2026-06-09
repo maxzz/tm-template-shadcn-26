@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/ui/shadcn/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/shadcn/select";
 import { CheckIcon, GitBranchIcon, SettingsIcon } from "lucide-react";
 import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from "jotai";
 import { LIGHT_THEMES, DARK_THEMES, type ThemeInput } from "./themes-data";
@@ -64,9 +65,6 @@ function TreeThemeControls() {
     );
 }
 
-const themeSelectClassName =
-    "w-full h-8 px-2 text-xs rounded-md border border-input bg-background text-foreground shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer";
-
 function TreeThemeSelect({
     label,
     themes,
@@ -86,20 +84,24 @@ function TreeThemeSelect({
             <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
                 {label}
             </label>
-            <select
+            <Select
                 value={theme}
-                onChange={(e) => {
-                    setTheme(e.target.value);
-                    addLog(`${logLabel} changed to: ${e.target.value}`);
+                onValueChange={(value) => {
+                    setTheme(value);
+                    addLog(`${logLabel} changed to: ${value}`);
                 }}
-                className={themeSelectClassName}
             >
-                {Object.entries(themes).map(([key, entry]) => (
-                    <option key={key} value={key}>
-                        {entry.name}
-                    </option>
-                ))}
-            </select>
+                <SelectTrigger className="w-full h-8 text-xs shadow-xs cursor-pointer">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="start">
+                    {Object.entries(themes).map(([key, entry]) => (
+                        <SelectItem key={key} value={key} className="text-xs">
+                            {entry.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
     );
 }
