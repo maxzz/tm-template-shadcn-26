@@ -1,4 +1,4 @@
-import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog, TestPierreTrees } from "./xyz-demos";
+import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog } from "./xyz-demos";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/ui/shadcn/accordion";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
@@ -25,16 +25,6 @@ export function MainBody() {
                     </AccordionTrigger>
                     <AccordionContent className="p-0">
                         <TestResizablePanels className="w-full h-[400px] overflow-hidden" />
-                    </AccordionContent>
-                </AccordionItem>
-
-                {/* Section 2: Pierre Trees */}
-                <AccordionItem value="pierre-trees" className="border rounded-xl bg-card shadow-xs overflow-hidden">
-                    <AccordionTrigger className="px-4 py-3 hover:no-underline font-semibold text-sm border-b">
-                        Pierre Trees File Explorer Demo
-                    </AccordionTrigger>
-                    <AccordionContent className="p-0">
-                        <TestPierreTrees />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
