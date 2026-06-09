@@ -65,17 +65,7 @@ function TreeThemeControls() {
     );
 }
 
-function TreeThemeSelect({
-    label,
-    themes,
-    themeAtom,
-    logLabel,
-}: {
-    label: string;
-    themes: Record<string, ThemeInput>;
-    themeAtom: PrimitiveAtom<string>;
-    logLabel: string;
-}) {
+function TreeThemeSelect({ label, themes, themeAtom, logLabel, }: { label: string; themes: Record<string, ThemeInput>; themeAtom: PrimitiveAtom<string>; logLabel: string; }) {
     const [theme, setTheme] = useAtom(themeAtom);
     const addLog = useSetAtom(addLogAtom);
 
@@ -84,6 +74,7 @@ function TreeThemeSelect({
             <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
                 {label}
             </label>
+
             <Select
                 value={theme}
                 onValueChange={(value) => {
@@ -94,12 +85,15 @@ function TreeThemeSelect({
                 <SelectTrigger className="w-full h-8 text-xs shadow-xs cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent align="start">
-                    {Object.entries(themes).map(([key, entry]) => (
-                        <SelectItem key={key} value={key} className="text-xs">
-                            {entry.name}
-                        </SelectItem>
-                    ))}
+                    {Object.entries(themes).map(
+                        ([key, entry]) => (
+                            <SelectItem key={key} value={key} className="text-xs">
+                                {entry.name}
+                            </SelectItem>
+                        )
+                    )}
                 </SelectContent>
             </Select>
         </div>
@@ -122,16 +116,13 @@ function TreeThemeModeToggle() {
                     { id: 'dark', label: 'Dark' },
                 ] as const).map(({ id, label }) => (
                     <button
+                        className={`flex-1 text-[11px] font-medium rounded-sm transition-all cursor-pointer ${themeMode === id ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                         key={id}
                         type="button"
                         onClick={() => {
                             setThemeMode(id);
                             addLog(`Theme mode changed to: ${label}`);
                         }}
-                        className={`flex-1 text-[11px] font-medium rounded-sm transition-all cursor-pointer ${themeMode === id
-                            ? "bg-background text-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground"
-                            }`}
                     >
                         {label}
                     </button>
@@ -152,22 +143,17 @@ function TreeLayoutStyleControls() {
 
 function TreeDensityControl() {
     const [density, setDensity] = useAtom(densityAtom);
-
     return (
         <div className="flex flex-col gap-2">
             <span className="text-xs font-medium text-muted-foreground">Density</span>
             <div className="flex gap-1.5">
-                {(['compact', 'default', 'relaxed'] as const).map((d) => (
-                    <Button
-                        className="flex-1 capitalize text-xs h-8"
-                        variant={density === d ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setDensity(d)}
-                        key={d}
-                    >
-                        {d}
-                    </Button>
-                ))}
+                {(['compact', 'default', 'relaxed'] as const).map(
+                    (d) => (
+                        <Button className="flex-1 capitalize text-xs h-8" variant={density === d ? "default" : "outline"} size="sm" onClick={() => setDensity(d)} key={d}>
+                            {d}
+                        </Button>
+                    )
+                )}
             </div>
         </div>
     );
@@ -175,22 +161,17 @@ function TreeDensityControl() {
 
 function TreeIconSetControl() {
     const [iconSet, setIconSet] = useAtom(iconSetAtom);
-
     return (
         <div className="flex flex-col gap-2">
             <span className="text-xs font-medium text-muted-foreground">Icon Set</span>
             <div className="flex gap-1.5">
-                {(['minimal', 'standard', 'complete'] as const).map((i) => (
-                    <Button
-                        className="flex-1 capitalize text-xs h-8"
-                        variant={iconSet === i ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setIconSet(i)}
-                        key={i}
-                    >
-                        {i}
-                    </Button>
-                ))}
+                {(['minimal', 'standard', 'complete'] as const).map(
+                    (i) => (
+                        <Button className="flex-1 capitalize text-xs h-8" variant={iconSet === i ? "default" : "outline"} size="sm" onClick={() => setIconSet(i)} key={i}>
+                            {i}
+                        </Button>
+                    )
+                )}
             </div>
         </div>
     );
