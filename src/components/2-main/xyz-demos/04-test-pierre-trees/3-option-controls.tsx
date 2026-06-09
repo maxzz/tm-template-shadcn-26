@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/ui/shadcn/button";
 import { CheckIcon, GitBranchIcon, SettingsIcon } from "lucide-react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { LIGHT_THEMES, DARK_THEMES } from "./themes-data";
+import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from "jotai";
+import { LIGHT_THEMES, DARK_THEMES, type ThemeInput } from "./themes-data";
 import {
     pathsAtom,
     densityAtom,
@@ -46,8 +46,18 @@ function TreeThemeControls() {
     return (
         <div className="border-t pt-4 flex flex-col gap-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-                <TreeLightThemeSelect />
-                <TreeDarkThemeSelect />
+                <TreeThemeSelect
+                    label="☀️ Light Theme"
+                    themes={LIGHT_THEMES}
+                    themeAtom={lightThemeAtom}
+                    logLabel="Light theme"
+                />
+                <TreeThemeSelect
+                    label="🌙 Dark Theme"
+                    themes={DARK_THEMES}
+                    themeAtom={darkThemeAtom}
+                    logLabel="Dark theme"
+                />
                 <TreeThemeModeToggle />
             </div>
         </div>
@@ -57,53 +67,36 @@ function TreeThemeControls() {
 const themeSelectClassName =
     "w-full h-8 px-2 text-xs rounded-md border border-input bg-background text-foreground shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer";
 
-function TreeLightThemeSelect() {
-    const [lightTheme, setLightTheme] = useAtom(lightThemeAtom);
+function TreeThemeSelect({
+    label,
+    themes,
+    themeAtom,
+    logLabel,
+}: {
+    label: string;
+    themes: Record<string, ThemeInput>;
+    themeAtom: PrimitiveAtom<string>;
+    logLabel: string;
+}) {
+    const [theme, setTheme] = useAtom(themeAtom);
     const addLog = useSetAtom(addLogAtom);
 
     return (
         <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                ☀️ Light Theme
+                {label}
             </label>
             <select
-                value={lightTheme}
+                value={theme}
                 onChange={(e) => {
-                    setLightTheme(e.target.value);
-                    addLog(`Light theme changed to: ${e.target.value}`);
+                    setTheme(e.target.value);
+                    addLog(`${logLabel} changed to: ${e.target.value}`);
                 }}
                 className={themeSelectClassName}
             >
-                {Object.entries(LIGHT_THEMES).map(([key, theme]) => (
+                {Object.entries(themes).map(([key, entry]) => (
                     <option key={key} value={key}>
-                        {theme.name}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
-}
-
-function TreeDarkThemeSelect() {
-    const [darkTheme, setDarkTheme] = useAtom(darkThemeAtom);
-    const addLog = useSetAtom(addLogAtom);
-
-    return (
-        <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                🌙 Dark Theme
-            </label>
-            <select
-                value={darkTheme}
-                onChange={(e) => {
-                    setDarkTheme(e.target.value);
-                    addLog(`Dark theme changed to: ${e.target.value}`);
-                }}
-                className={themeSelectClassName}
-            >
-                {Object.entries(DARK_THEMES).map(([key, theme]) => (
-                    <option key={key} value={key}>
-                        {theme.name}
+                        {entry.name}
                     </option>
                 ))}
             </select>
