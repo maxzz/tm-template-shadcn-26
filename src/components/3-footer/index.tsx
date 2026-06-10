@@ -1,9 +1,34 @@
-export function Footer() {
+import { type HTMLAttributes } from "react";
+import { classNames, envBuildVersion, envModifiedDate } from "@/utils";
+import { IconSunnyvale } from "@/ui/icons/normal";
+
+export function Section3_Footer({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
     return (
-        <footer className="px-3 py-2 border-b border-border bg-background flex items-center justify-center">
-            <div>
-                footer
-            </div>
-        </footer>
+        <div className={classNames("h-12 text-xs bg-background text-foreground border-t border-border flex items-center justify-center", className)} {...rest}>
+
+            <a className={urlClasses} href="https://github.com/maxzz" target="_blank" rel="noopener">
+                Created by Max Zakharzhevskiy
+            </a>
+
+            <IconSunnyvale
+                className="pt-1 size-8 hover:scale-150 transition-all origin-bottom duration-300"
+                title={`${envModifiedDate()}\n   Sunnyvale Produce\n\tVersion ${envBuildVersion()}`}
+            />
+
+            <a className={urlClasses} href="https://github.com/maxzz/tm-template-shadcn-26" target="_blank" rel="noopener">
+                Open source code on GitHub
+            </a>
+        </div>
     );
 }
+
+const urlClasses = "\
+origin-center \
+underline-offset-2 \
+hover:underline \
+hover:text-primary-500 \
+scale-y-50 \
+hover:scale-y-125 \
+transition-colors \
+duration-1000 \
+cursor-pointer";
