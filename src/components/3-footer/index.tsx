@@ -1,6 +1,7 @@
 import { type HTMLAttributes } from "react";
 import { classNames, envBuildVersion, envModifiedDate } from "@/utils";
 import { IconSunnyvale } from "@/ui/icons/normal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/shadcn/tooltip";
 
 export function Section3_Footer({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
     return (
@@ -10,10 +11,20 @@ export function Section3_Footer({ className, ...rest }: HTMLAttributes<HTMLDivEl
                 Created by Max Zakharzhevskiy
             </a>
 
-            <IconSunnyvale
-                className="pt-1 size-8 hover:scale-150 transition-all origin-bottom duration-300"
-                title={`${envModifiedDate()}\n   Sunnyvale Produce\n\tVersion ${envBuildVersion()}`}
-            />
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <IconSunnyvale className="pt-1 size-8 hover:scale-150 transition-all origin-bottom duration-300" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                        <div className="flex flex-col gap-0.5">
+                            <span>{envModifiedDate()}</span>
+                            <span>Sunnyvale Produce</span>
+                            <span>Version {envBuildVersion()}</span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
 
             <a className={urlClasses} href="https://github.com/maxzz/tm-template-shadcn-26" target="_blank" rel="noopener">
                 Open source code on GitHub
