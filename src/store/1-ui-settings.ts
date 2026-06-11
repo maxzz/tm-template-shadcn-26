@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     theme: 'light',
     showFooter: true,
     panelSizes: getValidPanelSizes(),
-    expandedSections: ['resizable-panels', 'pierre-trees'],
+    expandedSections: ['resizable-panels', 'kibo-ui-tree'],
 };
 
 // Load settings from localStorage

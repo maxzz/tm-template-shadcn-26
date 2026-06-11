@@ -1,4 +1,4 @@
-import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog } from "./xyz-demos";
+import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog, TestKiboUiTree } from "./xyz-demos";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/ui/shadcn/accordion";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
@@ -25,6 +25,15 @@ export function MainBody() {
                     </AccordionTrigger>
                     <AccordionContent className="p-0">
                         <TestResizablePanels className="w-full h-[400px] overflow-hidden" />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="kibo-ui-tree" className="border rounded-xl bg-card shadow-xs overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline font-semibold text-sm border-b">
+                        Kibo UI Tree Demo
+                    </AccordionTrigger>
+                    <AccordionContent className="p-0">
+                        <TestKiboUiTree className="w-full h-[400px] overflow-hidden" />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
