@@ -9,14 +9,17 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useId,
+  useMemo,
+  useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { cn } from "@/utils/classnames";
 
 type TreeContextType = {
   expandedIds: Set<string>;
-  selectedIds: string[];
   toggleExpanded: (nodeId: string) => void;
   handleSelection: (nodeId: string, ctrlKey: boolean) => void;
   showLines?: boolean;
@@ -28,6 +31,50 @@ type TreeContextType = {
 };
 
 const TreeContext = createContext<TreeContextType | undefined>(undefined);
+
+type TreeSelectionStore = {
+  selectedIds: string[];
+  listeners: Map<string, Set<() => void>>;
+};
+
+type TreeSelectionContextType = {
+  subscribe: (nodeId: string, listener: () => void) => () => void;
+  getSnapshot: (nodeId: string) => boolean;
+};
+
+const TreeSelectionContext = createContext<TreeSelectionContextType | undefined>(
+  undefined
+);
+
+function notifySelectionListeners(
+  store: TreeSelectionStore,
+  nodeIds: Iterable<string>
+) {
+  for (const nodeId of nodeIds) {
+    store.listeners.get(nodeId)?.forEach((listener) => listener());
+  }
+}
+
+function applySelectionChange(
+  store: TreeSelectionStore,
+  newSelection: string[]
+) {
+  const affected = new Set([...store.selectedIds, ...newSelection]);
+  store.selectedIds = newSelection;
+  notifySelectionListeners(store, affected);
+}
+
+function useTreeNodeSelected(nodeId: string) {
+  const selection = useContext(TreeSelectionContext);
+  if (!selection) {
+    throw new Error("TreeNodeTrigger must be used within a TreeProvider");
+  }
+
+  return useSyncExternalStore(
+    (listener) => selection.subscribe(nodeId, listener),
+    () => selection.getSnapshot(nodeId)
+  );
+}
 
 const useTree = () => {
   const context = useContext(TreeContext);
@@ -89,10 +136,55 @@ export const TreeProvider = ({
   const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>(
     selectedIds ?? []
   );
+  const selectionStoreRef = useRef<TreeSelectionStore>({
+    selectedIds: selectedIds ?? [],
+    listeners: new Map(),
+  });
 
-  const isControlled =
-    selectedIds !== undefined && onSelectionChange !== undefined;
-  const currentSelectedIds = isControlled ? selectedIds : internalSelectedIds;
+  const isControlled = onSelectionChange !== undefined;
+  const currentSelectedIds = selectedIds ?? internalSelectedIds;
+  const selectedIdsRef = useRef(currentSelectedIds);
+  selectedIdsRef.current = currentSelectedIds;
+
+  useEffect(() => {
+    if (selectedIds === undefined) {
+      return;
+    }
+
+    const store = selectionStoreRef.current;
+    const prev = store.selectedIds;
+    if (
+      prev.length === selectedIds.length &&
+      prev.every((id, index) => id === selectedIds[index])
+    ) {
+      return;
+    }
+
+    selectedIdsRef.current = selectedIds;
+    applySelectionChange(store, selectedIds);
+  }, [selectedIds]);
+
+  const selectionContextValue = useMemo<TreeSelectionContextType>(
+    () => ({
+      subscribe: (nodeId, listener) => {
+        const store = selectionStoreRef.current;
+        const nodeListeners =
+          store.listeners.get(nodeId) ?? new Set<() => void>();
+        nodeListeners.add(listener);
+        store.listeners.set(nodeId, nodeListeners);
+
+        return () => {
+          nodeListeners.delete(listener);
+          if (nodeListeners.size === 0) {
+            store.listeners.delete(nodeId);
+          }
+        };
+      },
+      getSnapshot: (nodeId) =>
+        selectionStoreRef.current.selectedIds.includes(nodeId),
+    }),
+    []
+  );
 
   const toggleExpanded = useCallback((nodeId: string) => {
     setExpandedIds((prev) => {
@@ -112,15 +204,19 @@ export const TreeProvider = ({
         return;
       }
 
+      const current = selectedIdsRef.current;
       let newSelection: string[];
 
       if (multiSelect && ctrlKey) {
-        newSelection = currentSelectedIds.includes(nodeId)
-          ? currentSelectedIds.filter((id) => id !== nodeId)
-          : [...currentSelectedIds, nodeId];
+        newSelection = current.includes(nodeId)
+          ? current.filter((id) => id !== nodeId)
+          : [...current, nodeId];
       } else {
-        newSelection = currentSelectedIds.includes(nodeId) ? [] : [nodeId];
+        newSelection = current.includes(nodeId) ? [] : [nodeId];
       }
+
+      selectedIdsRef.current = newSelection;
+      applySelectionChange(selectionStoreRef.current, newSelection);
 
       if (isControlled) {
         onSelectionChange?.(newSelection);
@@ -128,39 +224,47 @@ export const TreeProvider = ({
         setInternalSelectedIds(newSelection);
       }
     },
-    [
+    [selectable, multiSelect, isControlled, onSelectionChange]
+  );
+
+  const treeContextValue = useMemo(
+    () => ({
+      expandedIds,
+      toggleExpanded,
+      handleSelection,
+      showLines,
+      showIcons,
       selectable,
       multiSelect,
-      currentSelectedIds,
-      isControlled,
-      onSelectionChange,
+      indent,
+      animateExpand,
+    }),
+    [
+      expandedIds,
+      toggleExpanded,
+      handleSelection,
+      showLines,
+      showIcons,
+      selectable,
+      multiSelect,
+      indent,
+      animateExpand,
     ]
   );
 
   return (
-    <TreeContext.Provider
-      value={{
-        expandedIds,
-        selectedIds: currentSelectedIds,
-        toggleExpanded,
-        handleSelection,
-        showLines,
-        showIcons,
-        selectable,
-        multiSelect,
-        indent,
-        animateExpand,
-      }}
-    >
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className={cn("w-full", className)}
-        initial={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        {children}
-      </motion.div>
-    </TreeContext.Provider>
+    <TreeSelectionContext.Provider value={selectionContextValue}>
+      <TreeContext.Provider value={treeContextValue}>
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className={cn("w-full", className)}
+          initial={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          {children}
+        </motion.div>
+      </TreeContext.Provider>
+    </TreeSelectionContext.Provider>
   );
 };
 
@@ -221,17 +325,37 @@ export const TreeNode = ({
   );
 };
 
-export type TreeNodeTriggerProps = ComponentProps<typeof motion.div>;
+export type TreeNodeTriggerProps = ComponentProps<typeof motion.div> & {
+  isSelected?: boolean;
+};
 
 export const TreeNodeTrigger = ({
-  children,
-  className,
-  onClick,
+  isSelected: isSelectedProp,
   ...props
 }: TreeNodeTriggerProps) => {
-  const { selectedIds, toggleExpanded, handleSelection, indent } = useTree();
+  if (isSelectedProp !== undefined) {
+    return <TreeNodeTriggerContent isSelected={isSelectedProp} {...props} />;
+  }
+
+  return <TreeNodeTriggerWithInternalSelection {...props} />;
+};
+
+function TreeNodeTriggerWithInternalSelection(props: TreeNodeTriggerProps) {
+  const { nodeId } = useTreeNode();
+  const isSelected = useTreeNodeSelected(nodeId);
+
+  return <TreeNodeTriggerContent isSelected={isSelected} {...props} />;
+}
+
+function TreeNodeTriggerContent({
+  children,
+  className,
+  isSelected,
+  onClick,
+  ...props
+}: TreeNodeTriggerProps & { isSelected: boolean }) {
+  const { toggleExpanded, handleSelection, indent } = useTree();
   const { nodeId, level } = useTreeNode();
-  const isSelected = selectedIds.includes(nodeId);
 
   return (
     <motion.div
@@ -254,7 +378,7 @@ export const TreeNodeTrigger = ({
       {children as ReactNode}
     </motion.div>
   );
-};
+}
 
 export const TreeLines = () => {
   const { showLines, indent } = useTree();

@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomFamily } from "jotai-family";
 import { uuid } from "@/utils";
 
 export type TreeDataNode = {
@@ -78,6 +79,10 @@ const treeData = assignTreeIds(TREE_SOURCE);
 export const treeDataAtom = atom<TreeNodeWithId[]>(treeData);
 export const treeSelectedIdsAtom = atom<string[]>([]);
 export const treeExpandedIdsAtom = atom<string[]>(collectExpandedIds(treeData));
+
+export const isNodeSelectedAtom = atomFamily((nodeId: string) =>
+    atom((get) => get(treeSelectedIdsAtom).includes(nodeId))
+);
 
 export const treeSelectedLabelsAtom = atom((get) => {
     const selectedIds = get(treeSelectedIdsAtom);

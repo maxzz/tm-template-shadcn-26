@@ -1,8 +1,9 @@
 import { memo, type ComponentProps, type ReactNode } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { classNames } from "@/utils";
 import { TreeExpander, TreeIcon, TreeLabel, TreeNode, TreeNodeContent, TreeNodeTrigger, TreeProvider, TreeView } from "@/ui/shadcn/kibo-ui-tree";
 import {
+    isNodeSelectedAtom,
     treeDataAtom,
     treeExpandedIdsAtom,
     treeSelectedIdsAtom,
@@ -26,12 +27,11 @@ export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
 
 function KiboTreeProvider({ children }: { children: ReactNode }) {
     const defaultExpandedIds = useAtomValue(treeExpandedIdsAtom);
-    const [selectedIds, setSelectedIds] = useAtom(treeSelectedIdsAtom);
+    const setSelectedIds = useSetAtom(treeSelectedIdsAtom);
 
     return (
         <TreeProvider
             defaultExpandedIds={defaultExpandedIds}
-            selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
         >
             {children}
@@ -69,11 +69,11 @@ const DemoTreeNode = memo(function DemoTreeNode({
 
     return (
         <TreeNode nodeId={node.id} level={level} isLast={isLast}>
-            <TreeNodeTrigger>
-                <TreeExpander hasChildren={hasChildren} />
-                <TreeIcon hasChildren={hasChildren} />
-                <TreeLabel>{node.label}</TreeLabel>
-            </TreeNodeTrigger>
+            <DemoTreeNodeTrigger
+                nodeId={node.id}
+                hasChildren={hasChildren}
+                label={node.label}
+            />
 
             {hasChildren && (
                 <TreeNodeContent hasChildren>
@@ -90,6 +90,26 @@ const DemoTreeNode = memo(function DemoTreeNode({
         </TreeNode>
     );
 });
+
+function DemoTreeNodeTrigger({
+    nodeId,
+    hasChildren,
+    label,
+}: {
+    nodeId: string;
+    hasChildren: boolean;
+    label: string;
+}) {
+    const isSelected = useAtomValue(isNodeSelectedAtom(nodeId));
+
+    return (
+        <TreeNodeTrigger isSelected={isSelected}>
+            <TreeExpander hasChildren={hasChildren} />
+            <TreeIcon hasChildren={hasChildren} />
+            <TreeLabel>{label}</TreeLabel>
+        </TreeNodeTrigger>
+    );
+}
 
 function KiboTreeHeader() {
     const selectedLabels = useAtomValue(treeSelectedLabelsAtom);
