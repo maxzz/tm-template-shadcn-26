@@ -1,5 +1,5 @@
 import { useState, type ComponentProps } from "react";
-import { classNames } from "@/utils";
+import { classNames, uuid } from "@/utils";
 import { TreeExpander, TreeIcon, TreeLabel, TreeNode, TreeNodeContent, TreeNodeTrigger, TreeProvider, TreeView } from "@/ui/shadcn/kibo-ui-tree";
 
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
@@ -24,7 +24,7 @@ export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
     );
 }
 
-function renderTreeNodes(nodes: TreeDataNode[], level = 0) {
+function renderTreeNodes(nodes: TreeNodeWithId[], level = 0) {
     return nodes.map(
         (node, index) => {
             const hasChildren = Boolean(node.children?.length);
@@ -84,49 +84,61 @@ const KIBO_UI_TREE_URL = "https://www.kibo-ui.com/components/tree";
 const SHADCNBLOCKS_DEMO_URL = "https://www.shadcnblocks.com/component/tree/tree-expanded-1";
 
 type TreeDataNode = {
-    id: string;
     label: string;
     expanded?: boolean;
     children?: TreeDataNode[];
 };
 
-const TREE_DATA: TreeDataNode[] = [
+type TreeNodeWithId = {
+    id: string;
+    label: string;
+    expanded?: boolean;
+    children?: TreeNodeWithId[];
+};
+
+const TREE_SOURCE: TreeDataNode[] = [
     {
-        id: "src",
         label: "src",
         expanded: true,
         children: [
             {
-                id: "components",
                 label: "components",
                 expanded: true,
                 children: [
                     {
-                        id: "ui",
                         label: "ui",
                         expanded: true,
                         children: [
-                            { id: "button.tsx", label: "button.tsx" },
-                            { id: "card.tsx", label: "card.tsx" },
-                            { id: "dialog.tsx", label: "dialog.tsx" },
+                            { label: "button.tsx" },
+                            { label: "card.tsx" },
+                            { label: "dialog.tsx" },
                         ],
                     },
                 ],
             },
-            { id: "layout", label: "layout" },
+            { label: "layout" },
         ],
     },
-    { id: "public", label: "public" },
-    { id: "package.json", label: "package.json" },
-    { id: "tsconfig.json", label: "tsconfig.json" },
-    { id: "README.md", label: "README.md" },
+    { label: "public" },
+    { label: "package.json" },
+    { label: "tsconfig.json" },
+    { label: "README.md" },
 ];
 
-function collectExpandedIds(nodes: TreeDataNode[]): string[] {
+function assignTreeIds(nodes: TreeDataNode[]): TreeNodeWithId[] {
+    return nodes.map((node) => ({
+        ...node,
+        id: String(uuid.asRelativeNumber()),
+        children: node.children ? assignTreeIds(node.children) : undefined,
+    }));
+}
+
+function collectExpandedIds(nodes: TreeNodeWithId[]): string[] {
     return nodes.flatMap((node) => [
         ...(node.expanded ? [node.id] : []),
         ...(node.children ? collectExpandedIds(node.children) : []),
     ]);
 }
 
+const TREE_DATA = assignTreeIds(TREE_SOURCE);
 const DEFAULT_EXPANDED_IDS = collectExpandedIds(TREE_DATA);
