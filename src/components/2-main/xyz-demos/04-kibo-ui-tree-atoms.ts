@@ -74,14 +74,34 @@ function findNodeLabel(nodes: TreeNodeWithId[], id: string): string | undefined 
     return undefined;
 }
 
+function walkTreeNodes(nodes: TreeNodeWithId[]): TreeNodeWithId[] {
+    return nodes.flatMap((node) => [
+        node,
+        ...(node.children ? walkTreeNodes(node.children) : []),
+    ]);
+}
+
 const treeData = assignTreeIds(TREE_SOURCE);
+const treeNodeIds = walkTreeNodes(treeData).map((node) => node.id);
 
 export const treeDataAtom = atom<TreeNodeWithId[]>(treeData);
 export const treeSelectedIdsAtom = atom<string[]>([]);
 export const treeExpandedIdsAtom = atom<string[]>(collectExpandedIds(treeData));
 
-export const isNodeSelectedAtom = atomFamily((nodeId: string) =>
-    atom((get) => get(treeSelectedIdsAtom).includes(nodeId))
+/** Per-node primitive — only the affected nodes re-render on selection change. */
+export const isNodeSelectedAtom = atomFamily((_nodeId: string) => atom(false));
+
+export const setTreeSelectionAtom = atom(
+    null,
+    (get, set, newSelection: string[]) => {
+        const prev = get(treeSelectedIdsAtom);
+        const affected = new Set([...prev, ...newSelection]);
+
+        set(treeSelectedIdsAtom, newSelection);
+        for (const id of affected) {
+            set(isNodeSelectedAtom(id), newSelection.includes(id));
+        }
+    }
 );
 
 export const treeSelectedLabelsAtom = atom((get) => {
@@ -90,3 +110,7 @@ export const treeSelectedLabelsAtom = atom((get) => {
 
     return selectedIds.map((id) => findNodeLabel(nodes, id) ?? id);
 });
+
+for (const nodeId of treeNodeIds) {
+    isNodeSelectedAtom(nodeId);
+}
