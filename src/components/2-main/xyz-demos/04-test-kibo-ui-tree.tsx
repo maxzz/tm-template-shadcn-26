@@ -14,6 +14,47 @@ import {
 const KIBO_UI_TREE_URL = "https://www.kibo-ui.com/components/tree";
 const SHADCNBLOCKS_DEMO_URL = "https://www.shadcnblocks.com/component/tree/tree-expanded-1";
 
+type TreeDataNode = {
+    id: string;
+    label: string;
+    expanded?: boolean;
+    children?: TreeDataNode[];
+};
+
+const TREE_DATA: TreeDataNode[] = [
+    {
+        id: "src",
+        label: "src",
+        expanded: true,
+        children: [
+            {
+                id: "components",
+                label: "components",
+                expanded: true,
+                children: [
+                    {
+                        id: "ui",
+                        label: "ui",
+                        expanded: true,
+                        children: [
+                            { id: "button.tsx", label: "button.tsx" },
+                            { id: "card.tsx", label: "card.tsx" },
+                            { id: "dialog.tsx", label: "dialog.tsx" },
+                        ],
+                    },
+                ],
+            },
+            { id: "layout", label: "layout" },
+        ],
+    },
+    { id: "public", label: "public" },
+    { id: "package.json", label: "package.json" },
+    { id: "tsconfig.json", label: "tsconfig.json" },
+    { id: "README.md", label: "README.md" },
+];
+
+const DEFAULT_EXPANDED_IDS = collectExpandedIds(TREE_DATA);
+
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -23,100 +64,46 @@ export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
 
             <div className="flex-1 min-h-0 overflow-auto p-4">
                 <TreeProvider
-                    defaultExpandedIds={["src", "components", "ui"]}
+                    defaultExpandedIds={DEFAULT_EXPANDED_IDS}
                     selectedIds={selectedIds}
                     onSelectionChange={setSelectedIds}
                 >
                     <TreeView>
-                        <TreeNode nodeId="src">
-                            <TreeNodeTrigger>
-                                <TreeExpander hasChildren />
-                                <TreeIcon hasChildren />
-                                <TreeLabel>src</TreeLabel>
-                            </TreeNodeTrigger>
-                            <TreeNodeContent hasChildren>
-                                <TreeNode nodeId="components" level={1}>
-                                    <TreeNodeTrigger>
-                                        <TreeExpander hasChildren />
-                                        <TreeIcon hasChildren />
-                                        <TreeLabel>components</TreeLabel>
-                                    </TreeNodeTrigger>
-                                    <TreeNodeContent hasChildren>
-                                        <TreeNode nodeId="ui" level={2} isLast>
-                                            <TreeNodeTrigger>
-                                                <TreeExpander hasChildren />
-                                                <TreeIcon hasChildren />
-                                                <TreeLabel>ui</TreeLabel>
-                                            </TreeNodeTrigger>
-                                            <TreeNodeContent hasChildren>
-                                                <TreeNode nodeId="button.tsx" level={3}>
-                                                    <TreeNodeTrigger>
-                                                        <TreeExpander />
-                                                        <TreeIcon />
-                                                        <TreeLabel>button.tsx</TreeLabel>
-                                                    </TreeNodeTrigger>
-                                                </TreeNode>
-                                                <TreeNode nodeId="card.tsx" level={3}>
-                                                    <TreeNodeTrigger>
-                                                        <TreeExpander />
-                                                        <TreeIcon />
-                                                        <TreeLabel>card.tsx</TreeLabel>
-                                                    </TreeNodeTrigger>
-                                                </TreeNode>
-                                                <TreeNode nodeId="dialog.tsx" level={3} isLast>
-                                                    <TreeNodeTrigger>
-                                                        <TreeExpander />
-                                                        <TreeIcon />
-                                                        <TreeLabel>dialog.tsx</TreeLabel>
-                                                    </TreeNodeTrigger>
-                                                </TreeNode>
-                                            </TreeNodeContent>
-                                        </TreeNode>
-                                    </TreeNodeContent>
-                                </TreeNode>
-                                <TreeNode nodeId="layout" level={1} isLast>
-                                    <TreeNodeTrigger>
-                                        <TreeExpander />
-                                        <TreeIcon />
-                                        <TreeLabel>layout</TreeLabel>
-                                    </TreeNodeTrigger>
-                                </TreeNode>
-                            </TreeNodeContent>
-                        </TreeNode>
-
-                        <TreeNode nodeId="public">
-                            <TreeNodeTrigger>
-                                <TreeExpander />
-                                <TreeIcon />
-                                <TreeLabel>public</TreeLabel>
-                            </TreeNodeTrigger>
-                        </TreeNode>
-                        <TreeNode nodeId="package.json">
-                            <TreeNodeTrigger>
-                                <TreeExpander />
-                                <TreeIcon />
-                                <TreeLabel>package.json</TreeLabel>
-                            </TreeNodeTrigger>
-                        </TreeNode>
-                        <TreeNode nodeId="tsconfig.json">
-                            <TreeNodeTrigger>
-                                <TreeExpander />
-                                <TreeIcon />
-                                <TreeLabel>tsconfig.json</TreeLabel>
-                            </TreeNodeTrigger>
-                        </TreeNode>
-                        <TreeNode nodeId="README.md" isLast>
-                            <TreeNodeTrigger>
-                                <TreeExpander />
-                                <TreeIcon />
-                                <TreeLabel>README.md</TreeLabel>
-                            </TreeNodeTrigger>
-                        </TreeNode>
+                        {renderTreeNodes(TREE_DATA)}
                     </TreeView>
                 </TreeProvider>
             </div>
         </div>
     );
+}
+
+function collectExpandedIds(nodes: TreeDataNode[]): string[] {
+    return nodes.flatMap((node) => [
+        ...(node.expanded ? [node.id] : []),
+        ...(node.children ? collectExpandedIds(node.children) : []),
+    ]);
+}
+
+function renderTreeNodes(nodes: TreeDataNode[], level = 0) {
+    return nodes.map((node, index) => {
+        const hasChildren = Boolean(node.children?.length);
+        const isLast = index === nodes.length - 1;
+
+        return (
+            <TreeNode key={node.id} nodeId={node.id} level={level} isLast={isLast}>
+                <TreeNodeTrigger>
+                    <TreeExpander hasChildren={hasChildren} />
+                    <TreeIcon hasChildren={hasChildren} />
+                    <TreeLabel>{node.label}</TreeLabel>
+                </TreeNodeTrigger>
+                {hasChildren && (
+                    <TreeNodeContent hasChildren>
+                        {renderTreeNodes(node.children!, level + 1)}
+                    </TreeNodeContent>
+                )}
+            </TreeNode>
+        );
+    });
 }
 
 function KiboTreeHeader({ selectedIds }: { selectedIds: string[] }) {
