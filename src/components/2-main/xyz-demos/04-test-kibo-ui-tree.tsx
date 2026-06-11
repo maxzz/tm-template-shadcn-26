@@ -1,56 +1,99 @@
-import { useState, type ComponentProps } from "react";
-import { classNames, uuid } from "@/utils";
+import { memo, type ComponentProps, type ReactNode } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { classNames } from "@/utils";
 import { TreeExpander, TreeIcon, TreeLabel, TreeNode, TreeNodeContent, TreeNodeTrigger, TreeProvider, TreeView } from "@/ui/shadcn/kibo-ui-tree";
+import {
+    treeDataAtom,
+    treeExpandedIdsAtom,
+    treeSelectedIdsAtom,
+    treeSelectedLabelsAtom,
+    type TreeNodeWithId,
+} from "./04-kibo-ui-tree-atoms";
 
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
     return (
         <div className={classNames("font-condensed text-xs flex flex-col", className)} {...rest}>
-            <KiboTreeHeader selectedIds={selectedIds} />
+            <KiboTreeHeader />
 
             <div className="flex-1 min-h-0 overflow-auto p-4">
-                <TreeProvider
-                    defaultExpandedIds={DEFAULT_EXPANDED_IDS}
-                    selectedIds={selectedIds}
-                    onSelectionChange={setSelectedIds}
-                >
-                    <TreeView>
-                        {renderTreeNodes(TREE_DATA)}
-                    </TreeView>
-                </TreeProvider>
+                <KiboTreeProvider>
+                    <KiboTreeView />
+                </KiboTreeProvider>
             </div>
         </div>
     );
 }
 
-function renderTreeNodes(nodes: TreeNodeWithId[], level = 0) {
-    return nodes.map(
-        (node, index) => {
-            const hasChildren = Boolean(node.children?.length);
-            const isLast = index === nodes.length - 1;
+function KiboTreeProvider({ children }: { children: ReactNode }) {
+    const defaultExpandedIds = useAtomValue(treeExpandedIdsAtom);
+    const [selectedIds, setSelectedIds] = useAtom(treeSelectedIdsAtom);
 
-            return (
-                <TreeNode key={node.id} nodeId={node.id} level={level} isLast={isLast}>
-                    <TreeNodeTrigger>
-                        <TreeExpander hasChildren={hasChildren} />
-                        <TreeIcon hasChildren={hasChildren} />
-                        <TreeLabel>{node.label}</TreeLabel>
-                    </TreeNodeTrigger>
-
-                    {hasChildren && (
-                        <TreeNodeContent hasChildren>
-                            {renderTreeNodes(node.children!, level + 1)}
-                        </TreeNodeContent>
-                    )}
-                </TreeNode>
-            );
-        }
+    return (
+        <TreeProvider
+            defaultExpandedIds={defaultExpandedIds}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+        >
+            {children}
+        </TreeProvider>
     );
 }
 
-function KiboTreeHeader({ selectedIds }: { selectedIds: string[]; }) {
-    const selectionLabel = selectedIds.length > 0 ? selectedIds.join(", ") : "none";
+const KiboTreeView = memo(function KiboTreeView() {
+    const nodes = useAtomValue(treeDataAtom);
+
+    return (
+        <TreeView>
+            {nodes.map((node, index) => (
+                <DemoTreeNode
+                    key={node.id}
+                    node={node}
+                    level={0}
+                    isLast={index === nodes.length - 1}
+                />
+            ))}
+        </TreeView>
+    );
+});
+
+const DemoTreeNode = memo(function DemoTreeNode({
+    node,
+    level,
+    isLast,
+}: {
+    node: TreeNodeWithId;
+    level: number;
+    isLast: boolean;
+}) {
+    const hasChildren = Boolean(node.children?.length);
+
+    return (
+        <TreeNode nodeId={node.id} level={level} isLast={isLast}>
+            <TreeNodeTrigger>
+                <TreeExpander hasChildren={hasChildren} />
+                <TreeIcon hasChildren={hasChildren} />
+                <TreeLabel>{node.label}</TreeLabel>
+            </TreeNodeTrigger>
+
+            {hasChildren && (
+                <TreeNodeContent hasChildren>
+                    {node.children!.map((child, index) => (
+                        <DemoTreeNode
+                            key={child.id}
+                            node={child}
+                            level={level + 1}
+                            isLast={index === node.children!.length - 1}
+                        />
+                    ))}
+                </TreeNodeContent>
+            )}
+        </TreeNode>
+    );
+});
+
+function KiboTreeHeader() {
+    const selectedLabels = useAtomValue(treeSelectedLabelsAtom);
+    const selectionLabel = selectedLabels.length > 0 ? selectedLabels.join(", ") : "none";
 
     return (
         <div className="px-4 py-3 border-b bg-muted/20 flex items-center justify-between gap-4">
@@ -82,63 +125,3 @@ function KiboTreeHeader({ selectedIds }: { selectedIds: string[]; }) {
 
 const KIBO_UI_TREE_URL = "https://www.kibo-ui.com/components/tree";
 const SHADCNBLOCKS_DEMO_URL = "https://www.shadcnblocks.com/component/tree/tree-expanded-1";
-
-type TreeDataNode = {
-    label: string;
-    expanded?: boolean;
-    children?: TreeDataNode[];
-};
-
-type TreeNodeWithId = {
-    id: string;
-    label: string;
-    expanded?: boolean;
-    children?: TreeNodeWithId[];
-};
-
-const TREE_SOURCE: TreeDataNode[] = [
-    {
-        label: "src",
-        expanded: true,
-        children: [
-            {
-                label: "components",
-                expanded: true,
-                children: [
-                    {
-                        label: "ui",
-                        expanded: true,
-                        children: [
-                            { label: "button.tsx" },
-                            { label: "card.tsx" },
-                            { label: "dialog.tsx" },
-                        ],
-                    },
-                ],
-            },
-            { label: "layout" },
-        ],
-    },
-    { label: "public" },
-    { label: "package.json" },
-    { label: "tsconfig.json" },
-    { label: "README.md" },
-];
-
-function assignTreeIds(nodes: TreeDataNode[]): TreeNodeWithId[] {
-    return nodes.map((node) => ({
-        ...node,
-        id: String(uuid.asRelativeNumber()),
-        children: node.children ? assignTreeIds(node.children) : undefined,
-    }));
-}
-
-function collectExpandedIds(nodes: TreeNodeWithId[]): string[] {
-    return nodes.flatMap((node) => [
-        ...(node.expanded ? [node.id] : []),
-        ...(node.children ? collectExpandedIds(node.children) : []),
-    ]);
-}
-
-const TREE_DATA = assignTreeIds(TREE_SOURCE);
-const DEFAULT_EXPANDED_IDS = collectExpandedIds(TREE_DATA);
