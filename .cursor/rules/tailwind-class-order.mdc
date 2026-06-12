@@ -1,0 +1,49 @@
+---
+description: Order Tailwind classes by size/position, color, border, rounding, shadow, then flex/grid
+globs: **/*.{tsx,jsx,vue,html}
+alwaysApply: false
+---
+
+# Tailwind Class Order
+
+When writing or editing `className`, `class`, or `cn()` arguments, order utility classes in this sequence:
+
+1. **Size & position** — dimensions, spacing, positioning, stacking, overflow
+2. **Color** — background, text, fill, stroke, gradients, opacity
+3. **Border** — border, outline, ring, divide
+4. **Rounding** — `rounded-*`
+5. **Shadow** — `shadow-*`
+6. **Children (flex & grid)** — display, flex/grid layout, alignment, gap, order
+
+Separate groups with a single space. Keep variant prefixes (`hover:`, `md:`, `dark:`) attached to each utility.
+
+## Group Reference
+
+| Group | Examples |
+|-------|----------|
+| Size & position | `w-*`, `h-*`, `min-*`, `max-*`, `size-*`, `p-*`, `m-*`, `inset-*`, `top-*`, `relative`, `absolute`, `fixed`, `sticky`, `z-*`, `overflow-*`, `aspect-*` |
+| Color | `bg-*`, `text-*`, `fill-*`, `stroke-*`, `from-*`, `to-*`, `via-*`, `opacity-*` |
+| Border | `border`, `border-*`, `outline-*`, `ring-*`, `divide-*` |
+| Rounding | `rounded-*` |
+| Shadow | `shadow-*` |
+| Children | `flex`, `grid`, `inline-flex`, `flex-*`, `grid-*`, `gap-*`, `items-*`, `justify-*`, `content-*`, `self-*`, `place-*`, `order-*`, `col-*`, `row-*`, `space-x-*`, `space-y-*` |
+
+## Examples
+
+```tsx
+// ❌ BAD — groups mixed
+<div className="flex gap-4 bg-muted p-4 rounded-lg shadow-sm text-sm w-full border" />
+
+// ✅ GOOD
+<div className="w-full p-4 bg-muted text-sm border rounded-lg shadow-sm flex gap-4" />
+```
+
+```tsx
+// ❌ BAD
+<button className="items-center justify-center hover:bg-primary flex h-9 px-4 rounded-md border bg-background shadow-xs" />
+
+// ✅ GOOD
+<button className="h-9 px-4 bg-background hover:bg-primary border rounded-md shadow-xs flex items-center justify-center" />
+```
+
+When refactoring existing classes, reorder to match this sequence without changing behavior.
