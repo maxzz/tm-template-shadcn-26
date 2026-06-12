@@ -108,8 +108,11 @@ function classify(token) {
         return 2;
     }
 
-    // 4 — margin & padding
-    if (/^(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(base)) {
+    // 4 — margin & padding (unprefixed only; prefixed → variant modifiers)
+    if (
+        !variant &&
+        /^(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(base)
+    ) {
         return 3;
     }
 
@@ -147,12 +150,13 @@ function classify(token) {
         return variant ? 9 : 13;
     }
 
-    // 9 — color
+    // 9 — color (unprefixed only)
     if (
-        /^(?:bg-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(base) ||
-        (/^text-/.test(base) && !TEXT_SIZES.has(base))
+        !variant &&
+        (/^(?:bg-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(base) ||
+            (/^text-/.test(base) && !TEXT_SIZES.has(base)))
     ) {
-        return variant ? 9 : 8;
+        return 8;
     }
 
     // 10 — variant modifiers (remaining prefixed utilities)
