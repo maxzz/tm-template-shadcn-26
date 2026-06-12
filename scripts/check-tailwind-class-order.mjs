@@ -6,12 +6,30 @@ const EXT = [".tsx", ".jsx"];
 
 const GROUPS = [
     {
-        name: "size & position",
+        name: "element",
         test: (c) =>
-            /^(?:[a-z]+:)*?(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|p-|px-|py-|pt-|pr-|pb-|pl-|m-|mx-|my-|mt-|mr-|mb-|ml-|inset-|top-|right-|bottom-|left-|relative|absolute|fixed|sticky|static|z-|overflow-|aspect-|block|inline|hidden|visible|box-|object-|float-|clear-|isolate|isolation-)/.test(
+            /^(?:[a-z]+:)*?(?:font-|truncate|whitespace-|cursor-|select-|pointer-events-|transition-|duration-|animate-|shrink-|grow-|basis-|compress-zero)/.test(
                 c
             ) ||
-            /^(?:[a-z]+:)*?(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-)/.test(c),
+            /^(?:[a-z]+:)*?(?:shrink|grow)$/.test(c),
+    },
+    {
+        name: "margin & padding",
+        test: (c) =>
+            /^(?:[a-z]+:)*?(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(c),
+    },
+    {
+        name: "width & height",
+        test: (c) =>
+            /^(?:[a-z]+:)*?(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|aspect-)/.test(c),
+    },
+    {
+        name: "position & layout",
+        test: (c) =>
+            /^(?:[a-z]+:)*?(?:relative|absolute|fixed|sticky|static|inset-|top-|right-|bottom-|left-|z-|overflow-|block|inline|hidden|visible|isolate)/.test(
+                c
+            ) &&
+            !/^(?:[a-z]+:)*?(?:inline-flex|inline-grid)/.test(c),
     },
     {
         name: "color",
@@ -37,7 +55,7 @@ const GROUPS = [
     {
         name: "children",
         test: (c) =>
-            /^(?:[a-z]+:)*?(?:flex(?:-[a-z0-9\[\]#%.]+)?|inline-flex|grid(?:-[a-z0-9\[\]#%.]+)?|inline-grid|gap-|items-|justify-|content-|self-|place-|order-|col-|row-|space-x-|space-y-|grow|shrink|basis-|table|table-|list-)/.test(
+            /^(?:[a-z]+:)*?(?:flex(?:-[a-z0-9\[\]#%.]+)?|inline-flex|grid(?:-[a-z0-9\[\]#%.]+)?|inline-grid|gap-|items-|justify-|content-|self-|place-|order-|col-|row-|space-x-|space-y-|table|table-|list-)/.test(
                 c
             ) ||
             /^(?:[a-z]+:)*?(?:flex|grid)$/.test(c),
