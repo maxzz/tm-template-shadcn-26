@@ -9,7 +9,7 @@ import {
     treeExpandedIdsAtom,
     treeSelectedLabelsAtom,
     type TreeNodeWithId,
-} from "./04-kibo-ui-tree-atoms";
+} from "./8-kibo-ui-tree-atoms";
 
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
     return (
