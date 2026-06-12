@@ -18,53 +18,33 @@ export function SelectedFileView() {
     }
 }
 
-function TsxFileView({ fileName }: { fileName: string }) {
-    const componentName = toComponentName(fileName);
-
+function TsxFileView({ fileName }: { fileName: string; }) {
     return (
         <FileViewShell title="TSX component preview" fileName={fileName}>
             <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
-                {`import type { ComponentProps } from "react";
-
-export function ${componentName}(props: ComponentProps<"div">) {
-  return (
-    <div {...props}>
-      {/* ${fileName} */}
-    </div>
-  );
-}`}
+                {getTsxFileContent(fileName)}
             </pre>
         </FileViewShell>
     );
 }
 
-function JsonFileView({ fileName }: { fileName: string }) {
-    const sample =
-        fileName === "package.json"
-            ? `{
-  "name": "demo-app",
-  "private": true,
-  "version": "0.0.0"
-}`
-            : `{
-  "compilerOptions": {
-    "strict": true,
-    "jsx": "react-jsx"
-  }
-}`;
-
+function JsonFileView({ fileName }: { fileName: string; }) {
     return (
         <FileViewShell title="JSON file preview" fileName={fileName}>
-            <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">{sample}</pre>
+            <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
+                {getJsonFileContent(fileName)}
+            </pre>
         </FileViewShell>
     );
 }
 
-function MarkdownFileView({ fileName }: { fileName: string }) {
+function MarkdownFileView({ fileName }: { fileName: string; }) {
     return (
         <FileViewShell title="Markdown preview" fileName={fileName}>
             <div className="space-y-3 text-sm">
-                <h3 className="font-semibold">Project README</h3>
+                <h3 className="font-semibold">
+                    Project README
+                </h3>
                 <p className="text-muted-foreground">
                     Simple markdown preview for <span className="font-mono">{fileName}</span>.
                 </p>
@@ -78,33 +58,23 @@ function MarkdownFileView({ fileName }: { fileName: string }) {
     );
 }
 
-function NoFileSelectedView({ selectedLabel }: { selectedLabel?: string }) {
+function NoFileSelectedView({ selectedLabel }: { selectedLabel?: string; }) {
     return (
         <div className="h-full flex flex-col items-center justify-center gap-2 p-6 text-center text-muted-foreground">
-            {selectedLabel ? (
-                <>
+            {selectedLabel
+                ? (<>
                     <span className="text-sm">No preview for &ldquo;{selectedLabel}&rdquo;</span>
                     <span className="text-xs">Select a .tsx, .json, or .md file</span>
-                </>
-            ) : (
-                <>
+                </>)
+                : (<>
                     <span className="text-sm">No file selected</span>
                     <span className="text-xs">Choose a file in the project tree</span>
-                </>
-            )}
+                </>)}
         </div>
     );
 }
 
-function FileViewShell({
-    title,
-    fileName,
-    children,
-}: {
-    title: string;
-    fileName: string;
-    children: ReactNode;
-}) {
+function FileViewShell({ title, fileName, children, }: { title: string; fileName: string; children: ReactNode; }) {
     return (
         <div className="h-full flex flex-col gap-3 p-4 overflow-auto">
             <div className="flex items-baseline justify-between gap-4 border-b pb-3">
@@ -116,7 +86,40 @@ function FileViewShell({
     );
 }
 
+// Helper functions for file content
+
 function toComponentName(fileName: string) {
     const base = fileName.replace(/\.tsx$/, "");
     return base.charAt(0).toUpperCase() + base.slice(1);
+}
+
+function getTsxFileContent(fileName: string) {
+    const componentName = toComponentName(fileName);
+
+    return `import type { ComponentProps } from "react";
+
+export function ${componentName}(props: ComponentProps<"div">) {
+  return (
+    <div {...props}>
+      {/* ${fileName} */}
+    </div>
+  );
+}`;
+}
+
+function getJsonFileContent(fileName: string) {
+    if (fileName === "package.json") {
+        return `{
+  "name": "demo-app",
+  "private": true,
+  "version": "0.0.0"
+}`;
+    }
+
+    return `{
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx"
+  }
+}`;
 }
