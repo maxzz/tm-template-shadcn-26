@@ -2,7 +2,7 @@ import { type ComponentProps } from "react";
 import { useAtomValue } from "jotai";
 import { classNames } from "@/utils";
 import { treeSelectedLabelsAtom } from "./8-kibo-ui-tree-atoms";
-import { ProjectExplorer } from "./0-project-explorer";
+import { ProjectExplorer } from "./0-test-explorer";
 
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
     return (
