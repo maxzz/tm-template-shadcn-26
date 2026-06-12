@@ -1,4 +1,4 @@
-import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog, TestKiboUiTree } from "./xyz-demos";
+import { TestConfirmationDialog, TestResizablePanels, TestLoginDialog, ProjectExplorer } from "./xyz-demos";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/ui/shadcn/accordion";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
@@ -33,7 +33,7 @@ export function MainBody() {
                         Kibo UI Tree Demo
                     </AccordionTrigger>
                     <AccordionContent className="p-0">
-                        <TestKiboUiTree className="w-full h-[400px] overflow-hidden" />
+                        <ProjectExplorer className="w-full h-[400px] overflow-hidden" />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

@@ -110,6 +110,29 @@ export const treeSelectedLabelsAtom = atom(
     }
 );
 
+export type SelectedFileKind = "tsx" | "json" | "md" | "none";
+
+export const treeSelectedLabelAtom = atom(
+    (get) => get(treeSelectedLabelsAtom)[0]
+);
+
+export const treeSelectedFileKindAtom = atom<SelectedFileKind>((get) => {
+    const label = get(treeSelectedLabelAtom);
+    if (!label) {
+        return "none";
+    }
+    if (label.endsWith(".tsx")) {
+        return "tsx";
+    }
+    if (label.endsWith(".json")) {
+        return "json";
+    }
+    if (label.endsWith(".md")) {
+        return "md";
+    }
+    return "none";
+});
+
 function findNodeLabel(nodes: TreeNodeWithId[], id: string): string | undefined {
     for (const node of nodes) {
         if (node.id === id) {

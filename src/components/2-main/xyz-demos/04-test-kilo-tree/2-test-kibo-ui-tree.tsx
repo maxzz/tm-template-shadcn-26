@@ -1,115 +1,17 @@
-import { memo, type ComponentProps, type ReactNode } from "react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { type ComponentProps } from "react";
+import { useAtomValue } from "jotai";
 import { classNames } from "@/utils";
-import { TreeExpander, TreeIcon, TreeLabel, TreeNode, TreeNodeContent, TreeNodeTrigger, TreeProvider, TreeView } from "@/ui/shadcn/kibo-ui-tree";
-import {
-    isNodeSelectedAtom,
-    setTreeSelectionAtom,
-    treeDataAtom,
-    treeExpandedIdsAtom,
-    treeSelectedLabelsAtom,
-    type TreeNodeWithId,
-} from "./8-kibo-ui-tree-atoms";
+import { treeSelectedLabelsAtom } from "./8-kibo-ui-tree-atoms";
+import { ProjectExplorer } from "./0-project-explorer";
 
 export function TestKiboUiTree({ className, ...rest }: ComponentProps<"div">) {
     return (
         <div className={classNames("font-condensed text-xs flex flex-col", className)} {...rest}>
             <KiboTreeHeader />
-
-            <div className="flex-1 min-h-0 overflow-auto p-4">
-                <KiboTreeProvider>
-                    <KiboTreeView />
-                </KiboTreeProvider>
-            </div>
+            <ProjectExplorer className="flex-1" />
         </div>
     );
 }
-
-function KiboTreeProvider({ children }: { children: ReactNode }) {
-    const defaultExpandedIds = useAtomValue(treeExpandedIdsAtom);
-    const setSelection = useSetAtom(setTreeSelectionAtom);
-
-    return (
-        <TreeProvider
-            defaultExpandedIds={defaultExpandedIds}
-            onSelectionChange={setSelection}
-        >
-            {children}
-        </TreeProvider>
-    );
-}
-
-const KiboTreeView = memo(function KiboTreeView() {
-    const nodes = useAtomValue(treeDataAtom);
-
-    return (
-        <TreeView>
-            {nodes.map((node, index) => (
-                <DemoTreeNode
-                    key={node.id}
-                    node={node}
-                    level={0}
-                    isLast={index === nodes.length - 1}
-                />
-            ))}
-        </TreeView>
-    );
-});
-
-const DemoTreeNode = memo(function DemoTreeNode({
-    node,
-    level,
-    isLast,
-}: {
-    node: TreeNodeWithId;
-    level: number;
-    isLast: boolean;
-}) {
-    const hasChildren = Boolean(node.children?.length);
-
-    return (
-        <TreeNode nodeId={node.id} level={level} isLast={isLast}>
-            <DemoTreeNodeTrigger
-                nodeId={node.id}
-                hasChildren={hasChildren}
-                label={node.label}
-            />
-
-            {hasChildren && (
-                <TreeNodeContent hasChildren>
-                    {node.children!.map((child, index) => (
-                        <DemoTreeNode
-                            key={child.id}
-                            node={child}
-                            level={level + 1}
-                            isLast={index === node.children!.length - 1}
-                        />
-                    ))}
-                </TreeNodeContent>
-            )}
-        </TreeNode>
-    );
-});
-
-const DemoTreeNodeTrigger = memo(function DemoTreeNodeTrigger({
-    nodeId,
-    hasChildren,
-    label,
-}: {
-    nodeId: string;
-    hasChildren: boolean;
-    label: string;
-}) {
-    const isSelected = useAtomValue(isNodeSelectedAtom(nodeId));
-
-    return (
-        <TreeNodeTrigger isSelected={isSelected} hasChildren={hasChildren}>
-            <TreeExpander hasChildren={hasChildren} />
-            <TreeIcon hasChildren={hasChildren} />
-            <TreeLabel>{label}</TreeLabel>
-        </TreeNodeTrigger>
-    );
-});
 
 function KiboTreeHeader() {
     const selectedLabels = useAtomValue(treeSelectedLabelsAtom);
