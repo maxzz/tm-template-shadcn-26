@@ -96,8 +96,8 @@ function toComponentName(fileName: string) {
 function getFileContent_tsx(fileName: string) {
     const componentName = toComponentName(fileName);
 
-    return (
-        `import type { ComponentProps } from "react";
+    const rv = `
+import type { ComponentProps } from "react";
 
 export function ${componentName}(props: ComponentProps<"div">) {
   return (
@@ -105,27 +105,28 @@ export function ${componentName}(props: ComponentProps<"div">) {
       {/* ${fileName} */}
     </div>
   );
-}`
-    );
+}`;
+
+    return rv.replace(/^\n/, "");
 }
 
 function getFileContent_json(fileName: string) {
+    let rv = ``;
     if (fileName === "package.json") {
-        return (
-            `{
+        rv = `
+{
   "name": "demo-app",
   "private": true,
   "version": "0.0.0"
-}`
-        );
+}`;
     } else {
-        return (
-            `{
+        rv = `
+{
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx"
   }
-}`
-        );
+}`;
     }
+    return rv.replace(/^\n/, "");
 }
