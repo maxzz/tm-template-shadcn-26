@@ -45,40 +45,31 @@ const TREE_SOURCE: TreeDataNode[] = [
 ];
 
 function assignTreeIds(nodes: TreeDataNode[]): TreeNodeWithId[] {
-    return nodes.map((node) => ({
-        ...node,
-        id: String(uuid.asRelativeNumber()),
-        children: node.children ? assignTreeIds(node.children) : undefined,
-    }));
+    return nodes.map(
+        (node) => ({
+            ...node,
+            id: String(uuid.asRelativeNumber()),
+            children: node.children ? assignTreeIds(node.children) : undefined,
+        })
+    );
 }
 
 function collectExpandedIds(nodes: TreeNodeWithId[]): string[] {
-    return nodes.flatMap((node) => [
-        ...(node.expanded ? [node.id] : []),
-        ...(node.children ? collectExpandedIds(node.children) : []),
-    ]);
-}
-
-function findNodeLabel(nodes: TreeNodeWithId[], id: string): string | undefined {
-    for (const node of nodes) {
-        if (node.id === id) {
-            return node.label;
-        }
-        if (node.children) {
-            const label = findNodeLabel(node.children, id);
-            if (label) {
-                return label;
-            }
-        }
-    }
-    return undefined;
+    return nodes.flatMap(
+        (node) => [
+            ...(node.expanded ? [node.id] : []),
+            ...(node.children ? collectExpandedIds(node.children) : []),
+        ]
+    );
 }
 
 function walkTreeNodes(nodes: TreeNodeWithId[]): TreeNodeWithId[] {
-    return nodes.flatMap((node) => [
-        node,
-        ...(node.children ? walkTreeNodes(node.children) : []),
-    ]);
+    return nodes.flatMap(
+        (node) => [
+            node,
+            ...(node.children ? walkTreeNodes(node.children) : []),
+        ]
+    );
 }
 
 const treeData = assignTreeIds(TREE_SOURCE);
@@ -90,6 +81,12 @@ export const treeExpandedIdsAtom = atom<string[]>(collectExpandedIds(treeData));
 
 /** Per-node primitive — only the affected nodes re-render on selection change. */
 export const isNodeSelectedAtom = atomFamily((_nodeId: string) => atom(false));
+
+for (const nodeId of treeNodeIds) {
+    isNodeSelectedAtom(nodeId);
+}
+
+//
 
 export const setTreeSelectionAtom = atom(
     null,
@@ -104,13 +101,26 @@ export const setTreeSelectionAtom = atom(
     }
 );
 
-export const treeSelectedLabelsAtom = atom((get) => {
-    const selectedIds = get(treeSelectedIdsAtom);
-    const nodes = get(treeDataAtom);
+export const treeSelectedLabelsAtom = atom(
+    (get) => {
+        const selectedIds = get(treeSelectedIdsAtom);
+        const nodes = get(treeDataAtom);
 
-    return selectedIds.map((id) => findNodeLabel(nodes, id) ?? id);
-});
+        return selectedIds.map((id) => findNodeLabel(nodes, id) ?? id);
+    }
+);
 
-for (const nodeId of treeNodeIds) {
-    isNodeSelectedAtom(nodeId);
+function findNodeLabel(nodes: TreeNodeWithId[], id: string): string | undefined {
+    for (const node of nodes) {
+        if (node.id === id) {
+            return node.label;
+        }
+        if (node.children) {
+            const label = findNodeLabel(node.children, id);
+            if (label) {
+                return label;
+            }
+        }
+    }
+    return undefined;
 }
