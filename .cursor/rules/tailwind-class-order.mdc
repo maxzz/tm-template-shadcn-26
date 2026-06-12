@@ -1,5 +1,5 @@
 ---
-description: Order Tailwind classes by size/position, color, border, rounding, shadow, then flex/grid
+description: Order Tailwind classes by element, spacing, dimensions, color, border, rounding, shadow, then flex/grid
 globs: **/*.{tsx,jsx,vue,html}
 alwaysApply: false
 ---
@@ -8,12 +8,15 @@ alwaysApply: false
 
 When writing or editing `className`, `class`, or `cn()` arguments, order utility classes in this sequence:
 
-1. **Size & position** — dimensions, spacing, positioning, stacking, overflow
-2. **Color** — background, text, fill, stroke, gradients, opacity
-3. **Border** — border, outline, ring, divide
-4. **Rounding** — `rounded-*`
-5. **Shadow** — `shadow-*`
-6. **Children (flex & grid)** — display, flex/grid layout, alignment, gap, order
+1. **Element** — classes that apply directly to the element itself (custom utilities, typography, cursor, pointer-events, transitions on self)
+2. **Margin & padding** — `m-*`, `p-*`, and axis variants
+3. **Width & height** — `w-*`, `h-*`, `min-*`, `max-*`, `size-*`, `aspect-*`
+4. **Position & layout** — positioning, stacking, overflow, display on the element (not flex/grid children)
+5. **Color** — background, text, fill, stroke, gradients, opacity
+6. **Border** — border, outline, ring, divide
+7. **Rounding** — `rounded-*`
+8. **Shadow** — `shadow-*`
+9. **Children (flex & grid)** — flex/grid display, alignment, gap, order
 
 Separate groups with a single space. Keep variant prefixes (`hover:`, `md:`, `dark:`) attached to each utility.
 
@@ -21,7 +24,10 @@ Separate groups with a single space. Keep variant prefixes (`hover:`, `md:`, `da
 
 | Group | Examples |
 |-------|----------|
-| Size & position | `w-*`, `h-*`, `min-*`, `max-*`, `size-*`, `p-*`, `m-*`, `inset-*`, `top-*`, `relative`, `absolute`, `fixed`, `sticky`, `z-*`, `overflow-*`, `aspect-*` |
+| Element | `shrink-*`, `grow-*`, `font-*`, `truncate`, `whitespace-*`, `cursor-*`, `select-*`, `pointer-events-*`, `transition-*`, `duration-*`, `animate-*` |
+| Margin & padding | `m-*`, `mx-*`, `my-*`, `mt-*`, `mr-*`, `mb-*`, `ml-*`, `p-*`, `px-*`, `py-*`, `pt-*`, `pr-*`, `pb-*`, `pl-*` |
+| Width & height | `w-*`, `h-*`, `min-w-*`, `max-w-*`, `min-h-*`, `max-h-*`, `size-*`, `aspect-*` |
+| Position & layout | `relative`, `absolute`, `fixed`, `sticky`, `static`, `inset-*`, `top-*`, `right-*`, `bottom-*`, `left-*`, `z-*`, `overflow-*`, `block`, `inline`, `hidden`, `visible` |
 | Color | `bg-*`, `text-*`, `fill-*`, `stroke-*`, `from-*`, `to-*`, `via-*`, `opacity-*` |
 | Border | `border`, `border-*`, `outline-*`, `ring-*`, `divide-*` |
 | Rounding | `rounded-*` |
@@ -32,10 +38,10 @@ Separate groups with a single space. Keep variant prefixes (`hover:`, `md:`, `da
 
 ```tsx
 // ❌ BAD — groups mixed
-<div className="flex gap-4 bg-muted p-4 rounded-lg shadow-sm text-sm w-full border" />
+<div className="flex gap-4 bg-muted p-4 rounded-lg shadow-sm text-sm w-full border font-condensed" />
 
 // ✅ GOOD
-<div className="w-full p-4 bg-muted text-sm border rounded-lg shadow-sm flex gap-4" />
+<div className="p-4 w-full bg-muted text-sm font-condensed border rounded-lg shadow-sm flex gap-4" />
 ```
 
 ```tsx
@@ -43,7 +49,15 @@ Separate groups with a single space. Keep variant prefixes (`hover:`, `md:`, `da
 <button className="items-center justify-center hover:bg-primary flex h-9 px-4 rounded-md border bg-background shadow-xs" />
 
 // ✅ GOOD
-<button className="h-9 px-4 bg-background hover:bg-primary border rounded-md shadow-xs flex items-center justify-center" />
+<button className="px-4 h-9 bg-background hover:bg-primary border rounded-md shadow-xs flex items-center justify-center" />
+```
+
+```tsx
+// ❌ BAD — element utility after spacing
+<div className="p-4 shrink-0 w-full flex" />
+
+// ✅ GOOD
+<div className="shrink-0 p-4 w-full flex" />
 ```
 
 When refactoring existing classes, reorder to match this sequence without changing behavior.
