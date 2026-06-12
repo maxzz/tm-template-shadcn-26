@@ -50,7 +50,7 @@ function FilePreview_tsx({ fileName }: { fileName: string; }) {
     return (
         <FilePreviewShell title="TSX component preview" fileName={fileName}>
             <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
-                {getTsxFileContent(fileName)}
+                {getFileContent_tsx(fileName)}
             </pre>
         </FilePreviewShell>
     );
@@ -60,7 +60,7 @@ function FilePreview_json({ fileName }: { fileName: string; }) {
     return (
         <FilePreviewShell title="JSON file preview" fileName={fileName}>
             <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
-                {getJsonFileContent(fileName)}
+                {getFileContent_json(fileName)}
             </pre>
         </FilePreviewShell>
     );
@@ -93,7 +93,7 @@ function toComponentName(fileName: string) {
     return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
-function getTsxFileContent(fileName: string) {
+function getFileContent_tsx(fileName: string) {
     const componentName = toComponentName(fileName);
 
     return (
@@ -109,7 +109,7 @@ export function ${componentName}(props: ComponentProps<"div">) {
     );
 }
 
-function getJsonFileContent(fileName: string) {
+function getFileContent_json(fileName: string) {
     if (fileName === "package.json") {
         return (
             `{
