@@ -4,70 +4,162 @@ import { join, relative } from "node:path";
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 const EXT = [".tsx", ".jsx"];
 
-const GROUPS = [
-    {
-        name: "element",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:font-|truncate|whitespace-|cursor-|select-|pointer-events-|transition-|duration-|animate-|shrink-|grow-|basis-|compress-zero)/.test(
-                c
-            ) ||
-            /^(?:[a-z]+:)*?(?:shrink|grow)$/.test(c),
-    },
-    {
-        name: "margin & padding",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(c),
-    },
-    {
-        name: "width & height",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|aspect-)/.test(c),
-    },
-    {
-        name: "position & layout",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:relative|absolute|fixed|sticky|static|inset-|top-|right-|bottom-|left-|z-|overflow-|block|inline|hidden|visible|isolate)/.test(
-                c
-            ) &&
-            !/^(?:[a-z]+:)*?(?:inline-flex|inline-grid)/.test(c),
-    },
-    {
-        name: "color",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:bg-|text-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(
-                c
-            ),
-    },
-    {
-        name: "border",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:border(?:-[a-z0-9\[\]#%.]+)?|outline-|ring-|divide-)/.test(c) &&
-            !/^(?:[a-z]+:)*?rounded/.test(c),
-    },
-    {
-        name: "rounding",
-        test: (c) => /^(?:[a-z]+:)*?rounded/.test(c),
-    },
-    {
-        name: "shadow",
-        test: (c) => /^(?:[a-z]+:)*?shadow/.test(c),
-    },
-    {
-        name: "children",
-        test: (c) =>
-            /^(?:[a-z]+:)*?(?:flex(?:-[a-z0-9\[\]#%.]+)?|inline-flex|grid(?:-[a-z0-9\[\]#%.]+)?|inline-grid|gap-|items-|justify-|content-|self-|place-|order-|col-|row-|space-x-|space-y-|table|table-|list-)/.test(
-                c
-            ) ||
-            /^(?:[a-z]+:)*?(?:flex|grid)$/.test(c),
-    },
+const GROUP_NAMES = [
+    "position anchor",
+    "self & group",
+    "element",
+    "margin & padding",
+    "width & height",
+    "position offsets & display",
+    "text size",
+    "font",
+    "color",
+    "variant modifiers",
+    "transition",
+    "border",
+    "rounding",
+    "shadow",
+    "truncate & overflow",
+    "children",
+    "end",
 ];
 
-const GROUP_NAMES = GROUPS.map((g) => g.name);
+const TEXT_SIZES = new Set([
+    "text-xs", "text-sm", "text-base", "text-lg", "text-xl",
+    "text-2xl", "text-3xl", "text-4xl", "text-5xl", "text-6xl", "text-7xl", "text-8xl", "text-9xl",
+]);
+
+function baseToken(token) {
+    if (/^group\/[\w-]+$/.test(token)) {
+        return token;
+    }
+    const parts = token.split(":");
+    return parts[parts.length - 1];
+}
+
+function hasVariantPrefix(token) {
+    if (/^group\/[\w-]+$/.test(token)) {
+        return false;
+    }
+    return token.includes(":");
+}
 
 function classify(token) {
-    for (let i = 0; i < GROUPS.length; i++) {
-        if (GROUPS[i].test(token)) return i;
+    const base = baseToken(token);
+    const variant = hasVariantPrefix(token);
+
+    // 17 — end (always last)
+    if (/^(?:cursor-|pointer-events)/.test(base) || base === "pointer-events-none" || /^z-/.test(base)) {
+        return 16;
     }
+
+    // 1 — position anchor
+    if (/^(?:relative|absolute|fixed|sticky|static)/.test(base)) {
+        return variant ? 9 : 0;
+    }
+
+    // 2 — self & group
+    if (/^self-/.test(base) || base === "group" || /^group\//.test(base)) {
+        return 1;
+    }
+
+    // 11 — transition (including variant-prefixed)
+    if (/^(?:transition|duration|animate)/.test(base)) {
+        return 10;
+    }
+
+    // 15 — truncate & overflow
+    if (base === "truncate" || base === "text-ellipsis" || /^overflow-/.test(base)) {
+        return 14;
+    }
+
+    // 16 — children (grid before flex in same group)
+    if (
+        /^grid(?:-|$)/.test(base) ||
+        base === "grid" ||
+        /^inline-grid/.test(base) ||
+        /^flex(?:-|$)/.test(base) ||
+        base === "flex" ||
+        /^inline-flex/.test(base) ||
+        /^gap-/.test(base) ||
+        /^items-/.test(base) ||
+        /^justify-/.test(base) ||
+        /^content-/.test(base) ||
+        /^place-/.test(base) ||
+        /^order-/.test(base) ||
+        /^col-/.test(base) ||
+        /^row-/.test(base) ||
+        /^space-[xy]-/.test(base) ||
+        /^list-/.test(base)
+    ) {
+        return variant ? 9 : 15;
+    }
+
+    // 3 — element
+    if (
+        /^(?:shrink|grow)$/.test(base) ||
+        /^shrink-/.test(base) ||
+        /^grow-/.test(base) ||
+        /^basis-/.test(base) ||
+        /^select-/.test(base) ||
+        /^whitespace-/.test(base) ||
+        base === "compress-zero"
+    ) {
+        return 2;
+    }
+
+    // 4 — margin & padding
+    if (/^(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(base)) {
+        return 3;
+    }
+
+    // 5 — width & height
+    if (/^(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|aspect-)/.test(base)) {
+        return 4;
+    }
+
+    // 6 — position offsets & display
+    if (
+        /^(?:inset-|top-|right-|bottom-|left-)/.test(base) ||
+        ["block", "inline", "hidden", "visible", "isolate"].includes(base)
+    ) {
+        return variant ? 9 : 5;
+    }
+
+    // 7 — text size
+    if (TEXT_SIZES.has(base)) {
+        return 6;
+    }
+
+    // 8 — font
+    if (/^font-/.test(base)) {
+        return 7;
+    }
+
+    // 12–14 — border, rounding, shadow (variant-prefixed → modifiers)
+    if (/^(?:border|outline-|ring-|divide-)/.test(base) && !/^rounded/.test(base)) {
+        return variant ? 9 : 11;
+    }
+    if (/^rounded/.test(base)) {
+        return variant ? 9 : 12;
+    }
+    if (/^shadow/.test(base)) {
+        return variant ? 9 : 13;
+    }
+
+    // 9 — color
+    if (
+        /^(?:bg-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(base) ||
+        (/^text-/.test(base) && !TEXT_SIZES.has(base))
+    ) {
+        return variant ? 9 : 8;
+    }
+
+    // 10 — variant modifiers (remaining prefixed utilities)
+    if (variant) {
+        return 9;
+    }
+
     return -1;
 }
 
@@ -134,19 +226,13 @@ const allViolations = [];
 for (const file of files) {
     const content = readFileSync(file, "utf8");
     const rel = relative(ROOT, file).replace(/\\/g, "/");
-    const lines = content.split("\n");
 
     for (const { value, index } of extractClassStrings(content)) {
         const violations = checkClassString(value);
         if (!violations.length) continue;
 
         const line = content.slice(0, index).split("\n").length;
-        allViolations.push({
-            file: rel,
-            line,
-            value,
-            violations,
-        });
+        allViolations.push({ file: rel, line, value, violations });
     }
 }
 
