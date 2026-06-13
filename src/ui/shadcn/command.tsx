@@ -9,7 +9,7 @@ export function Command({ className, ...rest }: ComponentProps<typeof CommandPri
     return (
         <CommandPrimitive
             data-slot="command"
-            className={cn("p-1 size-full rounded-xl! text-popover-foreground bg-popover overflow-hidden flex flex-col", className)}
+            className={cn("p-1 size-full text-popover-foreground bg-popover rounded-xl! overflow-hidden flex flex-col", className)}
             {...rest}
         />
     );
@@ -40,10 +40,10 @@ export function CommandDialog({
 export function CommandInput({ className, ...rest }: ComponentProps<typeof CommandPrimitive.Input>) {
     return (
         <div data-slot="command-input-wrapper" className="p-1 pb-0">
-            <InputGroup className="h-8! *:data-[slot=input-group-addon]:pl-2! bg-input/30 border-input/30 rounded-lg! shadow-none!">
+            <InputGroup className="h-8! bg-input/30 *:data-[slot=input-group-addon]:pl-2! border-input/30 rounded-lg! shadow-none!">
                 <CommandPrimitive.Input
                     data-slot="command-input"
-                    className={cn("w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed outline-hidden", className)}
+                    className={cn("w-full text-sm disabled:opacity-50 outline-hidden disabled:cursor-not-allowed", className)}
                     {...rest}
                 />
 
@@ -59,7 +59,7 @@ export function CommandList({ className, ...rest }: ComponentProps<typeof Comman
     return (
         <CommandPrimitive.List
             data-slot="command-list"
-            className={cn("max-h-72 no-scrollbar scroll-py-1 overflow-x-hidden overflow-y-auto outline-none", className)}
+            className={cn("max-h-72 scroll-py-1 outline-none overflow-x-hidden overflow-y-auto no-scrollbar", className)}
             {...rest}
         />
     );
