@@ -12,7 +12,7 @@ export function RadioGroupItem({ className, ...rest }: ComponentProps<typeof Rad
     return (
         <RadioGroupPrimitive.Item data-slot="radio-group-item" className={cn(itemClasses, className)} {...rest}>
             <RadioGroupPrimitive.Indicator data-slot="radio-group-indicator" className="size-4 flex items-center justify-center">
-                <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
+                <span className="absolute size-2 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-foreground rounded-full" />
             </RadioGroupPrimitive.Indicator>
         </RadioGroupPrimitive.Item>
     );
