@@ -276,3 +276,5 @@ for (const [file, items] of [...byFile.entries()].sort()) {
     }
     console.log();
 }
+
+process.exit(allViolations.length > 0 ? 1 : 0);
