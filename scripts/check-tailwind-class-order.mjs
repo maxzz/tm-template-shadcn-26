@@ -1,8 +1,10 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+// @ts-check
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 const EXT = [".tsx", ".jsx"];
+const FIX = process.argv.includes("--fix");
 
 const VARIANT = 11;
 const TRANSITION = 12;
@@ -12,6 +14,7 @@ const SHADOW = 15;
 const TRUNCATE_OVERFLOW = 16;
 const CHILDREN = 17;
 const END = 18;
+const UNKNOWN = 999;
 
 const GROUP_NAMES = [
     "position anchor",
@@ -39,6 +42,16 @@ const TEXT_SIZES = new Set([
     "text-xs", "text-sm", "text-base", "text-lg", "text-xl",
     "text-2xl", "text-3xl", "text-4xl", "text-5xl", "text-6xl", "text-7xl", "text-8xl", "text-9xl",
 ]);
+
+const CLASS_PATTERNS = [
+    /className\s*=\s*"([^"]+)"/g,
+    /className\s*=\s*'([^']+)'/g,
+    /className\s*=\s*\{`([^`]+)`\}/g,
+    /className\s*=\s*\{\s*["'`]([^"'`]+)["'`]\s*\}/g,
+    /class\s*=\s*"([^"]+)"/g,
+    /cn\(\s*["'`]([^"'`]+)["'`]/g,
+    /classNames\(\s*["'`]([^"'`]+)["'`]/g,
+];
 
 function baseToken(token) {
     if (/^group\/[\w-]+$/.test(token)) {
@@ -184,22 +197,49 @@ function classify(token) {
     return -1;
 }
 
+function sortClassString(value) {
+    const tokens = value.split(/\s+/).filter(Boolean);
+    if (tokens.length < 2) {
+        return value;
+    }
+
+    const withMeta = tokens.map((token, index) => ({
+        token,
+        sortGroup: classify(token),
+        index,
+    }));
+
+    withMeta.sort((a, b) => {
+        const ga = a.sortGroup >= 0 ? a.sortGroup : UNKNOWN;
+        const gb = b.sortGroup >= 0 ? b.sortGroup : UNKNOWN;
+        if (ga !== gb) {
+            return ga - gb;
+        }
+        return a.index - b.index;
+    });
+
+    return withMeta.map((x) => x.token).join(" ");
+}
+
 function extractClassStrings(content) {
     const results = [];
-    const patterns = [
-        /className\s*=\s*"([^"]+)"/g,
-        /className\s*=\s*'([^']+)'/g,
-        /className\s*=\s*\{`([^`]+)`\}/g,
-        /className\s*=\s*\{\s*["'`]([^"'`]+)["'`]\s*\}/g,
-        /class\s*=\s*"([^"]+)"/g,
-        /cn\(\s*["'`]([^"'`]+)["'`]/g,
-        /classNames\(\s*["'`]([^"'`]+)["'`]/g,
-    ];
+    const seen = new Set();
 
-    for (const pattern of patterns) {
+    for (const pattern of CLASS_PATTERNS) {
+        const re = new RegExp(pattern.source, pattern.flags);
         let match;
-        while ((match = pattern.exec(content))) {
-            results.push({ value: match[1], index: match.index });
+        while ((match = re.exec(content))) {
+            const key = `${match.index}:${match[0].length}`;
+            if (seen.has(key)) {
+                continue;
+            }
+            seen.add(key);
+            results.push({
+                value: match[1],
+                index: match.index,
+                length: match[0].length,
+                full: match[0],
+            });
         }
     }
 
@@ -241,40 +281,109 @@ function walk(dir, files = []) {
     return files;
 }
 
-const files = walk(join(ROOT, "src"));
-const allViolations = [];
+function applyFixes(file, matches) {
+    const toApply = matches
+        .map(({ index, length, full, value }) => {
+            if (checkClassString(value).length === 0) {
+                return null;
+            }
+            const fixed = sortClassString(value);
+            if (fixed === value) {
+                return null;
+            }
+            return {
+                index,
+                length,
+                replacement: full.replace(value, fixed),
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.index - a.index);
 
-for (const file of files) {
-    const content = readFileSync(file, "utf8");
-    const rel = relative(ROOT, file).replace(/\\/g, "/");
-
-    for (const { value, index } of extractClassStrings(content)) {
-        const violations = checkClassString(value);
-        if (!violations.length) continue;
-
-        const line = content.slice(0, index).split("\n").length;
-        allViolations.push({ file: rel, line, value, violations });
+    if (!toApply.length) {
+        return 0;
     }
+
+    let content = readFileSync(file, "utf8");
+    for (const { index, length, replacement } of toApply) {
+        content = content.slice(0, index) + replacement + content.slice(index + length);
+    }
+    writeFileSync(file, content, "utf8");
+    return toApply.length;
 }
 
-const byFile = new Map();
-for (const v of allViolations) {
-    if (!byFile.has(v.file)) byFile.set(v.file, []);
-    byFile.get(v.file).push(v);
-}
+function scanForViolations(filePaths) {
+    const violations = [];
 
-console.log(`Scanned ${files.length} files`);
-console.log(`Found ${allViolations.length} class strings with order violations in ${byFile.size} files\n`);
+    for (const file of filePaths) {
+        const content = readFileSync(file, "utf8");
+        const rel = relative(ROOT, file).replace(/\\/g, "/");
 
-for (const [file, items] of [...byFile.entries()].sort()) {
-    console.log(`${file}`);
-    for (const item of items) {
-        console.log(`  L${item.line}: ${item.value.slice(0, 100)}${item.value.length > 100 ? "..." : ""}`);
-        for (const v of item.violations) {
-            console.log(`    - "${v.token}" (${v.group}) appears after ${v.after}`);
+        for (const { value, index } of extractClassStrings(content)) {
+            const classViolations = checkClassString(value);
+            if (!classViolations.length) continue;
+
+            const line = content.slice(0, index).split("\n").length;
+            violations.push({ file: rel, line, value, violations: classViolations });
         }
     }
-    console.log();
+
+    return violations;
+}
+
+function printViolations(violations) {
+    const byFile = new Map();
+    for (const v of violations) {
+        if (!byFile.has(v.file)) byFile.set(v.file, []);
+        byFile.get(v.file).push(v);
+    }
+
+    console.log(`Scanned ${files.length} files`);
+    console.log(`Found ${violations.length} class strings with order violations in ${byFile.size} files\n`);
+
+    for (const [file, items] of [...byFile.entries()].sort()) {
+        console.log(file);
+        for (const item of items) {
+            console.log(`  L${item.line}: ${item.value.slice(0, 100)}${item.value.length > 100 ? "..." : ""}`);
+            for (const v of item.violations) {
+                console.log(`    - "${v.token}" (${v.group}) appears after ${v.after}`);
+            }
+        }
+        console.log();
+    }
+}
+
+const files = walk(join(ROOT, "src"));
+let fixedCount = 0;
+
+if (FIX) {
+    for (const file of files) {
+        const content = readFileSync(file, "utf8");
+        fixedCount += applyFixes(file, extractClassStrings(content));
+    }
+
+    console.log(`Scanned ${files.length} files`);
+    console.log(`Fixed ${fixedCount} class string${fixedCount === 1 ? "" : "s"}\n`);
+
+    if (fixedCount > 0) {
+        console.log("Re-checking after fix...\n");
+        const remaining = scanForViolations(files);
+        if (remaining.length > 0) {
+            printViolations(remaining);
+            process.exit(1);
+        }
+    }
+
+    process.exit(0);
+}
+
+const allViolations = scanForViolations(files);
+
+console.log(`Scanned ${files.length} files`);
+printViolations(allViolations);
+
+if (allViolations.length > 0) {
+    console.log("Run with --fix to reorder classes automatically.\n");
 }
 
 process.exit(allViolations.length > 0 ? 1 : 0);

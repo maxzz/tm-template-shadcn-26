@@ -54,6 +54,7 @@
         "build": "tsc -b && upen && vite build",
         "preview": "vite preview",
         "check:tw": "node scripts/check-tailwind-class-order.mjs",
+        "check:tw:fix": "node scripts/check-tailwind-class-order.mjs --fix",
         "to-npm": "pnpm build && gh-pages -d dist"
     }
 }
