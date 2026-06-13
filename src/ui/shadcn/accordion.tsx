@@ -5,7 +5,7 @@ import { Accordion as AccordionPrimitive } from "radix-ui";
 
 export function Accordion({ className, ...rest }: ComponentProps<typeof AccordionPrimitive.Root>) {
     return (
-        <AccordionPrimitive.Root data-slot="accordion" className={cn("flex w-full flex-col", className)} {...rest} />
+        <AccordionPrimitive.Root data-slot="accordion" className={cn("w-full flex flex-col", className)} {...rest} />
     );
 }
 
@@ -36,7 +36,7 @@ export function AccordionContent({ className, children, ...rest }: ComponentProp
     return (
         <AccordionPrimitive.Content
             data-slot="accordion-content"
-            className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+            className="text-sm data-open:animate-accordion-down data-closed:animate-accordion-up overflow-hidden"
             {...rest}
         >
             <div className={cn(contentClasses, className)}>
