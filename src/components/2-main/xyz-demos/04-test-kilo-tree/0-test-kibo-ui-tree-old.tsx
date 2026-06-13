@@ -20,7 +20,7 @@ function KiboTreeHeader() {
     return (
         <div className="px-4 py-3 bg-muted/20 border-b flex items-center justify-between gap-4">
             <span className="shrink-0 text-sm">Kibo UI Tree Demo</span>
-            <span className="truncate text-xs font-mono text-muted-foreground">
+            <span className="text-xs font-mono text-muted-foreground truncate">
                 Selected: {selectionLabel}
             </span>
             <span className="shrink-0 text-xs text-muted-foreground flex gap-3">
