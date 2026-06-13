@@ -4,16 +4,27 @@ import { join, relative } from "node:path";
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 const EXT = [".tsx", ".jsx"];
 
+const VARIANT = 11;
+const TRANSITION = 12;
+const BORDER = 13;
+const ROUNDING = 14;
+const SHADOW = 15;
+const TRUNCATE_OVERFLOW = 16;
+const CHILDREN = 17;
+const END = 18;
+
 const GROUP_NAMES = [
     "position anchor",
+    "position offsets",
     "self & group",
     "element",
     "margin & padding",
     "width & height",
-    "position offsets & display",
+    "display",
     "text size",
     "font",
-    "color",
+    "text color",
+    "background & fill color",
     "variant modifiers",
     "transition",
     "border",
@@ -48,32 +59,37 @@ function classify(token) {
     const base = baseToken(token);
     const variant = hasVariantPrefix(token);
 
-    // 17 — end (always last)
+    // 19 — end (always last)
     if (/^(?:cursor-|pointer-events)/.test(base) || base === "pointer-events-none" || /^z-/.test(base)) {
-        return 16;
+        return END;
     }
 
     // 1 — position anchor
     if (/^(?:relative|absolute|fixed|sticky|static)/.test(base)) {
-        return variant ? 9 : 0;
+        return variant ? VARIANT : 0;
+    }
+
+    // 2 — position offsets (immediately after anchor)
+    if (/^(?:inset-|top-|right-|bottom-|left-)/.test(base)) {
+        return variant ? VARIANT : 1;
     }
 
     // 2 — self & group
     if (/^self-/.test(base) || base === "group" || /^group\//.test(base)) {
-        return 1;
+        return 2;
     }
 
-    // 11 — transition (including variant-prefixed)
+    // 13 — transition (including variant-prefixed)
     if (/^(?:transition|duration|animate)/.test(base)) {
-        return 10;
+        return TRANSITION;
     }
 
-    // 15 — truncate & overflow
+    // 17 — truncate & overflow
     if (base === "truncate" || base === "text-ellipsis" || /^overflow-/.test(base)) {
-        return 14;
+        return TRUNCATE_OVERFLOW;
     }
 
-    // 16 — children (grid before flex in same group)
+    // 18 — children (grid before flex in same group)
     if (
         /^grid(?:-|$)/.test(base) ||
         base === "grid" ||
@@ -92,10 +108,10 @@ function classify(token) {
         /^space-[xy]-/.test(base) ||
         /^list-/.test(base)
     ) {
-        return variant ? 9 : 15;
+        return variant ? VARIANT : CHILDREN;
     }
 
-    // 3 — element
+    // 4 — element
     if (
         /^(?:shrink|grow)$/.test(base) ||
         /^shrink-/.test(base) ||
@@ -105,63 +121,64 @@ function classify(token) {
         /^whitespace-/.test(base) ||
         base === "compress-zero"
     ) {
-        return 2;
+        return 3;
     }
 
-    // 4 — margin & padding (unprefixed only; prefixed → variant modifiers)
+    // 5 — margin & padding (unprefixed only; prefixed → variant modifiers)
     if (
         !variant &&
         /^(?:m-|mx-|my-|mt-|mr-|mb-|ml-|p-|px-|py-|pt-|pr-|pb-|pl-)/.test(base)
     ) {
-        return 3;
-    }
-
-    // 5 — width & height
-    if (/^(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|aspect-)/.test(base)) {
         return 4;
     }
 
-    // 6 — position offsets & display
-    if (
-        /^(?:inset-|top-|right-|bottom-|left-)/.test(base) ||
-        ["block", "inline", "hidden", "visible", "isolate"].includes(base)
-    ) {
-        return variant ? 9 : 5;
+    // 6 — width & height
+    if (/^(?:w-|h-|min-w-|max-w-|min-h-|max-h-|size-|aspect-)/.test(base)) {
+        return 5;
     }
 
-    // 7 — text size
+    // 7 — display
+    if (["block", "inline", "hidden", "visible", "isolate"].includes(base)) {
+        return variant ? VARIANT : 6;
+    }
+
+    // 8 — text size
     if (TEXT_SIZES.has(base)) {
-        return 6;
-    }
-
-    // 8 — font
-    if (/^font-/.test(base)) {
         return 7;
     }
 
-    // 12–14 — border, rounding, shadow (variant-prefixed → modifiers)
-    if (/^(?:border|outline-|ring-|divide-)/.test(base) && !/^rounded/.test(base)) {
-        return variant ? 9 : 11;
-    }
-    if (/^rounded/.test(base)) {
-        return variant ? 9 : 12;
-    }
-    if (/^shadow/.test(base)) {
-        return variant ? 9 : 13;
-    }
-
-    // 9 — color (unprefixed only)
-    if (
-        !variant &&
-        (/^(?:bg-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(base) ||
-            (/^text-/.test(base) && !TEXT_SIZES.has(base)))
-    ) {
+    // 9 — font
+    if (/^font-/.test(base)) {
         return 8;
     }
 
-    // 10 — variant modifiers (remaining prefixed utilities)
-    if (variant) {
+    // 14–16 — border, rounding, shadow (variant-prefixed → modifiers)
+    if (/^(?:border|outline-|ring-|divide-)/.test(base) && !/^rounded/.test(base)) {
+        return variant ? VARIANT : BORDER;
+    }
+    if (/^rounded/.test(base)) {
+        return variant ? VARIANT : ROUNDING;
+    }
+    if (/^shadow/.test(base)) {
+        return variant ? VARIANT : SHADOW;
+    }
+
+    // 10 — text color (unprefixed only)
+    if (!variant && /^text-/.test(base) && !TEXT_SIZES.has(base)) {
         return 9;
+    }
+
+    // 11 — background & fill color (unprefixed only)
+    if (
+        !variant &&
+        /^(?:bg-|fill-|stroke-|from-|to-|via-|opacity-|accent-|caret-|decoration-)/.test(base)
+    ) {
+        return 10;
+    }
+
+    // 12 — variant modifiers (remaining prefixed utilities)
+    if (variant) {
+        return VARIANT;
     }
 
     return -1;
