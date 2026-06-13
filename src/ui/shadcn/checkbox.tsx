@@ -8,7 +8,7 @@ export function Checkbox({ className, ...rest }: ComponentProps<typeof CheckboxP
     return (
         <CheckboxPrimitive.Root data-slot="checkbox" className={cn(checkboxClasses, className)} {...rest}>
 
-            <CheckboxPrimitive.Indicator data-slot="checkbox-indicator" className="grid place-content-center text-current transition-none [&>svg]:size-3.5">
+            <CheckboxPrimitive.Indicator data-slot="checkbox-indicator" className="[&>svg]:size-3.5 text-current transition-none grid place-content-center">
                 <CheckIcon />
             </CheckboxPrimitive.Indicator>
 
