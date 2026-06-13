@@ -4,7 +4,7 @@ import * as ResizablePrimitive from "react-resizable-panels";
 
 export function ResizablePanelGroup({ className, ...rest }: ResizablePrimitive.GroupProps) {
     return (
-        <ResizablePrimitive.Group data-slot="resizable-panel-group" className={cn("size-full flex aria-[orientation=vertical]:flex-col", className)} {...rest} />
+        <ResizablePrimitive.Group data-slot="resizable-panel-group" className={cn("size-full aria-[orientation=vertical]:flex-col flex", className)} {...rest} />
     );
 }
 
@@ -17,7 +17,7 @@ export function ResizableHandle({ withHandle, className, ...rest }: ResizablePri
         <ResizablePrimitive.Separator data-slot="resizable-handle" className={cn(separatorClasses, className)} {...rest}>
 
             {withHandle && (
-                <div className="hover:bg-sky-500 group-hover/separator:bg-sky-500 group-hover/separator:transition-all group-hover/separator:duration-700 shrink-0 w-1 h-6 bg-border rounded-lg flex z-10" />
+                <div className="shrink-0 w-1 h-6 bg-border hover:bg-sky-500 group-hover/separator:bg-sky-500 group-hover/separator:transition-all group-hover/separator:duration-700 rounded-lg flex z-10" />
             )}
             
         </ResizablePrimitive.Separator>
