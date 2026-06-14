@@ -20,7 +20,7 @@ export function SelectedFileView() {
 
 function FilePreview_FileSelected({ selectedLabel }: { selectedLabel?: string; }) {
     return (
-        <div className="h-full flex flex-col items-center justify-center gap-2 p-6 text-center text-muted-foreground">
+        <div className="p-6 h-full text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
             {selectedLabel
                 ? (<>
                     <span className="text-sm">No preview for &ldquo;{selectedLabel}&rdquo;</span>
@@ -36,12 +36,12 @@ function FilePreview_FileSelected({ selectedLabel }: { selectedLabel?: string; }
 
 function FilePreviewShell({ title, fileName, children, }: { title: string; fileName: string; children: ReactNode; }) {
     return (
-        <div className="h-full flex flex-col gap-3 p-4 overflow-auto">
-            <div className="flex items-baseline justify-between gap-4 border-b pb-3">
+        <div className="p-4 h-full overflow-auto flex flex-col gap-3">
+            <div className="pb-3 border-b flex items-baseline justify-between gap-4">
                 <span className="text-sm font-semibold">{title}</span>
                 <span className="text-xs font-mono text-muted-foreground truncate">{fileName}</span>
             </div>
-            <div className="flex-1 min-h-0">{children}</div>
+            <div className="min-h-0 flex-1">{children}</div>
         </div>
     );
 }
@@ -49,7 +49,7 @@ function FilePreviewShell({ title, fileName, children, }: { title: string; fileN
 function FilePreview_tsx({ fileName }: { fileName: string; }) {
     return (
         <FilePreviewShell title="TSX component preview" fileName={fileName}>
-            <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
+            <pre className="p-4 text-xs font-mono bg-muted/40 rounded-md overflow-auto">
                 {getFileContent_tsx(fileName)}
             </pre>
         </FilePreviewShell>
@@ -59,7 +59,7 @@ function FilePreview_tsx({ fileName }: { fileName: string; }) {
 function FilePreview_json({ fileName }: { fileName: string; }) {
     return (
         <FilePreviewShell title="JSON file preview" fileName={fileName}>
-            <pre className="text-xs font-mono bg-muted/40 rounded-md p-4 overflow-auto">
+            <pre className="p-4 text-xs font-mono bg-muted/40 rounded-md overflow-auto">
                 {getFileContent_json(fileName)}
             </pre>
         </FilePreviewShell>
@@ -69,14 +69,14 @@ function FilePreview_json({ fileName }: { fileName: string; }) {
 function FilePreview_md({ fileName }: { fileName: string; }) {
     return (
         <FilePreviewShell title="Markdown preview" fileName={fileName}>
-            <div className="space-y-3 text-sm">
+            <div className="text-sm space-y-3">
                 <h3 className="font-semibold">
                     Project README
                 </h3>
                 <p className="text-muted-foreground">
                     Simple markdown preview for <span className="font-mono">{fileName}</span>.
                 </p>
-                <ul className="list-disc list-inside text-muted-foreground text-xs space-y-1">
+                <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
                     <li>Project tree on the left</li>
                     <li>File-specific test view on the right</li>
                     <li>Resizable split between panels</li>
