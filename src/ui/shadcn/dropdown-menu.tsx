@@ -100,7 +100,7 @@ export function DropdownMenuCheckboxItem({ className, children, checked, inset, 
     return (
         <DropdownMenuPrimitive.CheckboxItem data-slot="dropdown-menu-checkbox-item" data-inset={inset} className={cn(checkboxItemClasses, className)} checked={checked} {...rest}>
 
-            <span data-slot="dropdown-menu-checkbox-item-indicator" className="pointer-events-none absolute right-2 flex items-center justify-center">
+            <span data-slot="dropdown-menu-checkbox-item-indicator" className="absolute right-2 flex items-center justify-center pointer-events-none">
                 <DropdownMenuPrimitive.ItemIndicator>
                     <CheckIcon />
                 </DropdownMenuPrimitive.ItemIndicator>
@@ -140,7 +140,7 @@ export function DropdownMenuRadioItem({ className, children, inset, ...rest }: C
     return (
         <DropdownMenuPrimitive.RadioItem data-slot="dropdown-menu-radio-item" data-inset={inset} className={cn(radioItemClasses, className)} {...rest}>
 
-            <span data-slot="dropdown-menu-radio-item-indicator" className="pointer-events-none absolute right-2 flex items-center justify-center">
+            <span data-slot="dropdown-menu-radio-item-indicator" className="absolute right-2 flex items-center justify-center pointer-events-none">
                 <DropdownMenuPrimitive.ItemIndicator>
                     <CheckIcon />
                 </DropdownMenuPrimitive.ItemIndicator>

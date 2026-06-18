@@ -30,7 +30,7 @@ export function CommandDialog({
                 <DialogDescription>{description}</DialogDescription>
             </DialogHeader>
 
-            <DialogContent className={cn("p-0 top-1/3 translate-y-0 rounded-xl! overflow-hidden", className)} noClose={!showCloseButton}>
+            <DialogContent className={cn("top-1/3 p-0 rounded-xl! overflow-hidden translate-y-0", className)} noClose={!showCloseButton}>
                 {children}
             </DialogContent>
         </Dialog>

@@ -4,7 +4,7 @@ import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import { Menubar as MenubarPrimitive } from "radix-ui";
 
 export function Menubar({ className, ...rest }: ComponentProps<typeof MenubarPrimitive.Root>) {
-    return <MenubarPrimitive.Root data-slot="menubar" className={cn("p-0.75 h-8 rounded-lg border flex items-center gap-0.5", className)} {...rest} />;
+    return <MenubarPrimitive.Root data-slot="menubar" className={cn("p-0.75 h-8 border rounded-lg flex items-center gap-0.5", className)} {...rest} />;
 }
 
 export function MenubarMenu({ ...rest }: ComponentProps<typeof MenubarPrimitive.Menu>) {
@@ -27,7 +27,7 @@ export function MenubarTrigger({ className, ...rest }: ComponentProps<typeof Men
     return (
         <MenubarPrimitive.Trigger
             data-slot="menubar-trigger"
-            className={cn("px-1.5 py-0.5 text-xs font-medium outline-hidden hover:bg-muted aria-expanded:bg-muted rounded-sm select-none flex items-center", className)}
+            className={cn("select-none px-1.5 py-0.5 text-xs font-medium hover:bg-muted aria-expanded:bg-muted outline-hidden rounded-sm flex items-center", className)}
             {...rest}
         />
     );
@@ -121,7 +121,7 @@ export function MenubarCheckboxItem({ className, children, checked, inset, ...re
             checked={checked}
             {...rest}
         >
-            <span className="absolute left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 pointer-events-none flex items-center justify-center">
+            <span className="absolute left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 flex items-center justify-center pointer-events-none">
                 <MenubarPrimitive.ItemIndicator>
                     <CheckIcon
                     />
@@ -159,7 +159,7 @@ export function MenubarRadioItem({ className, children, inset, ...rest }: Compon
             className={cn(radioItemClasses, className)}
             {...rest}
         >
-            <span className="absolute left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 pointer-events-none flex items-center justify-center">
+            <span className="absolute left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 flex items-center justify-center pointer-events-none">
                 <MenubarPrimitive.ItemIndicator>
                     <CheckIcon
                     />

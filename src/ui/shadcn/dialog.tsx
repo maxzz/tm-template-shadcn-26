@@ -154,7 +154,7 @@ export function DialogHeader({ className, ...rest }: ComponentProps<"div">) {
 
 export function DialogFooter({ className, showCloseButton = false, children, ...rest }: ComponentProps<"div"> & { showCloseButton?: boolean; }) {
     return (
-        <div data-slot="dialog-footer" className={cn("-mx-4 -mb-4 p-4 rounded-b-xl border-t bg-muted/50 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...rest}>
+        <div data-slot="dialog-footer" className={cn("p-4 bg-muted/50 sm:flex-row sm:justify-end border-t rounded-b-xl flex flex-col-reverse gap-2 -mx-4 -mb-4", className)} {...rest}>
             {children}
 
             {showCloseButton && (
@@ -172,7 +172,7 @@ export function DialogTitle({ className, ...rest }: ComponentProps<typeof Dialog
     return (
         <DialogPrimitive.Title
             data-slot="dialog-title"
-            className={cn("font-heading text-base leading-none font-medium", className)}
+            className={cn("text-base font-heading font-medium leading-none", className)}
             {...rest}
         />
     );

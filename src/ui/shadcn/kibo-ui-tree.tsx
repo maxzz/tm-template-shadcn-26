@@ -369,7 +369,7 @@ function TreeNodeTriggerContent({
     return (
         <motion.div
             className={cn(
-                "group relative mx-1 flex cursor-pointer items-center rounded-md px-3 py-2 transition-all duration-200",
+                "relative group mx-1 px-3 py-2 transition-all duration-200 rounded-md flex items-center cursor-pointer",
                 "hover:bg-accent/50",
                 isSelected && "bg-accent/80",
                 className
@@ -400,7 +400,7 @@ export function TreeLines() {
     }
 
     return (
-        <div className="pointer-events-none absolute top-0 bottom-0 left-0">
+        <div className="absolute top-0 bottom-0 left-0 pointer-events-none">
             {/* Render vertical lines for all parent levels */}
             {Array.from({ length: level }, (_, index) => {
                 const shouldHideLine = parentPath[index] === true;
@@ -499,7 +499,7 @@ export function TreeExpander({ hasChildren = false, className, onClick, ...props
         <motion.div
             animate={{ rotate: isExpanded ? 90 : 0 }}
             className={cn(
-                "mr-1 flex h-4 w-4 cursor-pointer items-center justify-center",
+                "mr-1 h-4 w-4 flex items-center justify-center cursor-pointer",
                 className
             )}
             onClick={(e) => {
@@ -542,7 +542,7 @@ export function TreeIcon({ icon, hasChildren = false, className, ...props }: Tre
     return (
         <motion.div
             className={cn(
-                "mr-2 flex h-4 w-4 items-center justify-center text-muted-foreground",
+                "mr-2 h-4 w-4 text-muted-foreground flex items-center justify-center",
                 className
             )}
             transition={{ duration: 0.15 }}
@@ -558,6 +558,6 @@ export type TreeLabelProps = HTMLAttributes<HTMLSpanElement>;
 
 export function TreeLabel({ className, ...props }: TreeLabelProps) {
     return (
-        <span className={cn("font flex-1 truncate text-sm", className)} {...props} />
+        <span className={cn("text-sm truncate flex-1 font", className)} {...props} />
     );
 }

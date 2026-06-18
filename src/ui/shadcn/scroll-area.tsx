@@ -85,14 +85,14 @@ export function ScrollBar({ className, orientation = "vertical", ...rest }: Comp
         <Prim.ScrollAreaScrollbar
             orientation={orientation}
             className={cn(
-                "flex touch-none select-none transition-colors",
+                "select-none transition-colors flex touch-none",
                 orientation === "vertical" && "w-2.5 h-full border-l border-l-transparent p-px",
                 orientation === "horizontal" && "h-2.5 border-t border-t-transparent p-px",
                 className
             )}
             {...rest}
         >
-            <Prim.ScrollAreaThumb className={cn("relative rounded-full bg-border", orientation === "vertical" && "flex-1")} />
+            <Prim.ScrollAreaThumb className={cn("relative bg-border rounded-full", orientation === "vertical" && "flex-1")} />
             
         </Prim.ScrollAreaScrollbar>
     );

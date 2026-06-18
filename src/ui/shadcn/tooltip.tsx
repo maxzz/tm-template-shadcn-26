@@ -20,7 +20,7 @@ export function TooltipContent({ className, sideOffset = 0, children, ...rest }:
 
             <TooltipPrimitive.Content data-slot="tooltip-content" sideOffset={sideOffset} className={cn(contentClasses, className)} {...rest}>
                 {children}
-                <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-xs bg-foreground fill-foreground" />
+                <TooltipPrimitive.Arrow className="size-2.5 bg-foreground fill-foreground rounded-xs z-50 translate-y-[calc(-50%-2px)] rotate-45" />
             </TooltipPrimitive.Content>
 
         </TooltipPrimitive.Portal>

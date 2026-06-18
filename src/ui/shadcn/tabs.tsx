@@ -9,7 +9,7 @@ export function Tabs({ className, orientation = "horizontal", ...rest }: Compone
         <TabsPrimitive.Root
             data-slot="tabs"
             data-orientation={orientation}
-            className={cn("group/tabs flex data-horizontal:flex-col gap-2", className)}
+            className={cn("group/tabs data-horizontal:flex-col flex gap-2", className)}
             {...rest}
         />
     );
@@ -55,7 +55,7 @@ export function TabsTrigger({ className, ...rest }: ComponentProps<typeof TabsPr
 
 export function TabsContent({ className, ...rest }: ComponentProps<typeof TabsPrimitive.Content>) {
     return (
-        <TabsPrimitive.Content data-slot="tabs-content" className={cn("flex-1 text-sm outline-none", className)} {...rest} />
+        <TabsPrimitive.Content data-slot="tabs-content" className={cn("text-sm outline-none flex-1", className)} {...rest} />
     );
 }
 

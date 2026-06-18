@@ -177,7 +177,7 @@ export function SelectItem({ className, children, indicatorFirst, ...rest }: Sel
     return (
         <SelectPrimitive.Item data-slot="select-item" className={cn(selectItemClasses, itemClasses, className)} {...rest}>
 
-            <span className={cn("absolute right-2 size-4 pointer-events-none flex items-center justify-center", indiClasses)}>
+            <span className={cn("absolute right-2 size-4 flex items-center justify-center pointer-events-none", indiClasses)}>
                 <SelectPrimitive.ItemIndicator>
                     <CheckIcon className="pointer-events-none" />
                 </SelectPrimitive.ItemIndicator>
