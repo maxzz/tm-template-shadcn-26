@@ -6,8 +6,22 @@ const STORE_KEY = "tm-template-shadcn-26";
 const STORE_VER = "v1.0";
 const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
 
+/** How the Welcome page opens onto the main page and closes back over it */
+export const WelcomeTransition = {
+    quadrants: 'quadrants',      // Splits into four quarters that fly out to the corners
+    doors: 'doors',              // Parts in the middle like a pair of sliding doors
+} as const;
+
+export type WelcomeTransition = typeof WelcomeTransition[keyof typeof WelcomeTransition];
+
+function isWelcomeTransition(value: unknown): value is WelcomeTransition {
+    return Object.values<unknown>(WelcomeTransition).includes(value);
+}
+
 export interface AppSettings {
     theme: ThemeMode;            // Theme mode
+    showWelcome: boolean;        // Show the Welcome page at startup
+    welcomeTransition: WelcomeTransition; // Transition between the Welcome and main pages
     showFooter: boolean;         // Show footer in main layout
     panelSizes: PanelSizes;      // ResizablePanelGroup panel sizes
     expandedSections: string[];  // Expanded accordion sections by name
@@ -15,6 +29,8 @@ export interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
     theme: 'light',
+    showWelcome: true,
+    welcomeTransition: WelcomeTransition.quadrants,
     showFooter: true,
     panelSizes: getValidPanelSizes(),
     expandedSections: ['resizable-panels', 'pierre-trees'],
@@ -32,6 +48,7 @@ function loadSettings(): AppSettings {
             return {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
+                welcomeTransition: isWelcomeTransition(parsed.welcomeTransition) ? parsed.welcomeTransition : DEFAULT_SETTINGS.welcomeTransition,
                 panelSizes: getValidPanelSizes(parsed.panelSizes),
                 expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
             };
