@@ -7,12 +7,12 @@ import { acquireMorphClock, activity, blobButtonActiveAtom, blobButtonConfig, mo
 import { buildOutline } from "./4-blob-button-math";
 
 export function BlobButton({ className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
+    const active = useAtomValue(blobButtonActiveAtom);
+    const setActive = useSetAtom(setBlobButtonActiveAtom);
+
     const ref = useRef<HTMLButtonElement>(null);
     const width = useMotionValue(0);
     const height = useMotionValue(0);
-
-    const active = useAtomValue(blobButtonActiveAtom);
-    const setActive = useSetAtom(setBlobButtonActiveAtom);
 
     useMorphClock(!useReducedMotion());
 
@@ -44,12 +44,12 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
     // Only fill and stroke transition: the Welcome page toggles `invisible` around the view transition, and a transitioned visibility blinks for a frame
     return (
         <button
-            ref={ref}
-            type="button"
-            data-active={active || undefined}
+            className={classNames("relative group px-15 py-10 text-sm font-medium text-primary outline-none cursor-pointer", className)}
             onPointerEnter={() => setActive(true)}
             onPointerLeave={() => setActive(false)}
-            className={classNames("relative group px-15 py-10 text-sm font-medium text-primary outline-none cursor-pointer", className)}
+            ref={ref}
+            data-active={active || undefined}
+            type="button"
             {...rest}
         >
             <svg className="absolute inset-0 size-full overflow-visible pointer-events-none" aria-hidden>
