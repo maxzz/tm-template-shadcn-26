@@ -49,15 +49,12 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
             data-active={active || undefined}
             onPointerEnter={() => setActive(true)}
             onPointerLeave={() => setActive(false)}
-            className={classNames("relative group px-10 py-5 text-sm font-medium text-primary outline-none cursor-pointer", className)}
+            className={classNames("relative group px-15 py-10 text-sm font-medium text-primary outline-none cursor-pointer", className)}
             {...rest}
         >
             <svg className="absolute inset-0 size-full overflow-visible pointer-events-none" aria-hidden>
                 <motion.path d={ghost} className="fill-none stroke-primary/25 stroke-1" />
-                <motion.path
-                    d={outline}
-                    className={outlineClasses}
-                />
+                <motion.path d={outline} className={outlineClasses} />
             </svg>
             <span className="relative">
                 {children}
