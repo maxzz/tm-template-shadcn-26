@@ -56,7 +56,7 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
                 <motion.path d={ghost} className="fill-none stroke-primary/25 stroke-1" />
                 <motion.path
                     d={outline}
-                    className="fill-primary/8 stroke-primary/70 group-data-active:fill-primary/15 group-data-active:stroke-primary group-focus-visible:stroke-ring stroke-[1.5] group-focus-visible:stroke-[2.5] transition-[fill,stroke] duration-300"
+                    className={outlineClasses}
                 />
             </svg>
             <span className="relative">
@@ -65,6 +65,18 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
         </button>
     );
 }
+
+const outlineClasses = "\
+stroke-[1.5] \
+stroke-primary/70 \
+fill-primary/8 \
+group-data-active:fill-primary/15 \
+group-data-active:stroke-primary \
+group-focus-visible:stroke-ring \
+group-focus-visible:stroke-[2.5] \
+transition-[fill,stroke] \
+duration-300 \
+";
 
 //---------------------------------------------------------------------------
 
