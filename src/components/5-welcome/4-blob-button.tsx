@@ -16,8 +16,8 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
 
     useMorphClock(!useReducedMotion());
 
-    const outline = useTransform(() => buildOutline(width.get(), height.get(), morphTime.get(), activity.get()));
-    const ghost = useTransform(() => buildOutline(width.get(), height.get(), morphTime.get() + blobButtonConfig.ghostLag, activity.get()));
+    const outlinePath = useTransform(() => buildOutline(width.get(), height.get(), morphTime.get(), activity.get()));
+    const ghostPath = useTransform(() => buildOutline(width.get(), height.get(), morphTime.get() + blobButtonConfig.ghostLag, activity.get()));
 
     useEffect(
         () => {
@@ -44,7 +44,7 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
     // Only fill and stroke transition: the Welcome page toggles `invisible` around the view transition, and a transitioned visibility blinks for a frame
     return (
         <button
-            className={classNames("relative group px-15 py-10 text-sm font-medium text-primary outline-none cursor-pointer", className)}
+            className={classNames("group relative px-15 py-10 text-sm font-medium text-primary outline-none cursor-pointer", className)}
             onPointerEnter={() => setActive(true)}
             onPointerLeave={() => setActive(false)}
             ref={ref}
@@ -53,8 +53,8 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
             {...rest}
         >
             <svg className="absolute inset-0 size-full overflow-visible pointer-events-none" aria-hidden>
-                <motion.path d={ghost} className="fill-none stroke-primary/25 stroke-1" />
-                <motion.path d={outline} className={outlineClasses} />
+                <motion.path d={ghostPath} className="fill-none stroke-primary/25 stroke-1" />
+                <motion.path d={outlinePath} className={outlineClasses} />
             </svg>
             <span className="relative">
                 {children}
