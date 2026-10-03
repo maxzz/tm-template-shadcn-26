@@ -8,11 +8,11 @@ import { classNames } from "@/utils";
  * Look of the morphing outline. Read on every frame, so edits (from code, settings UI, or devtools) apply immediately.
  */
 export const blobButtonConfig = proxy({
-    points: 9,              // control points around the outline (3..MAX_POINTS)
-    wobble: 3.5,            // px, how far points drift in and out of the base shape
-    slide: 0.35,            // how far points slide along the outline, as a fraction of the gap between neighbors
+    samples: 48,            // points the outline is drawn through (8..MAX_SAMPLES); more is smoother, it does not add bumps
+    wobble: 4.5,            // px, typical depth of the waves running along the outline
+    endWobble: 0.3,         // wobble multiplier on the rounded ends and side walls, where a deep wave would fold into a sharp corner
+    roundness: 1,           // corner radius as a fraction of the half-height: 1 gives semicircle ends, lower gives straight side walls
     speed: 1,               // morph speed at rest
-    squareness: 3.5,        // superellipse exponent of the base shape: 2 is an ellipse, higher approaches a rounded rectangle
     activeWobble: 1.7,      // wobble multiplier while hovered
     activeSpeed: 2.4,       // speed multiplier while hovered
     ghostLag: 2.4,          // how far ahead in morph time the faint second outline runs
@@ -34,16 +34,16 @@ const setBlobButtonActiveAtom = atom(null,
 //---------------------------------------------------------------------------
 
 /**
- * Morph time and activity are module-level and the point seeds are deterministic: every instance
+ * Morph time and activity are module-level and the wave seeds are deterministic: every instance
  * (the live button and its inert copies in the Welcome page pieces) must draw the identical outline,
  * or the seams between the pieces would show during the view transition.
  */
 const morphTime = motionValue(0);
 const activity = motionValue(0);    // 0 at rest, 1 hovered
 
-const MAX_POINTS = 24;
+const MAX_SAMPLES = 96;
 const TAU = Math.PI * 2;
-const seeds = createSeeds(MAX_POINTS);
+const waves = createWaves();
 
 let clockUsers = 0;
 
@@ -135,37 +135,53 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
 
 //---------------------------------------------------------------------------
 
-const xs = new Float64Array(MAX_POINTS);
-const ys = new Float64Array(MAX_POINTS);
+const xs = new Float64Array(MAX_SAMPLES);
+const ys = new Float64Array(MAX_SAMPLES);
+const waveWeights = new Float64Array(waves.length);
+const waveOffsets = new Float64Array(waves.length);
 
 /**
- * Points sit on a superellipse inscribed in the button box; each drifts in and out along its direction
- * and slides along the outline on its own slow sine mix. A closed Catmull-Rom spline through them keeps the curve smooth.
+ * A rounded-rectangle base shape displaced along its normal by a few slow waves that travel around it.
+ * The displacement is one smooth field sampled at evenly spaced points, so no single point can run off
+ * on its own and fold the curve into a corner; a closed Catmull-Rom spline through the samples keeps it smooth.
  */
 function buildOutline(width: number, height: number, time: number, activityLevel: number): string {
     if (!width || !height) {
         return "";
     }
 
-    const { points, wobble, slide, squareness, activeWobble } = blobButtonConfig;
-    const n = Math.min(Math.max(Math.round(points), 3), MAX_POINTS);
+    const { samples, wobble, endWobble, roundness, activeWobble } = blobButtonConfig;
+    const n = Math.min(Math.max(Math.round(samples), 8), MAX_SAMPLES);
     const amplitude = wobble * (1 + (activeWobble - 1) * activityLevel);
     const cx = width / 2;
     const cy = height / 2;
-    const rx = Math.max(cx - amplitude, 1);
-    const ry = Math.max(cy - amplitude, 1);
-    const exponent = 2 / squareness;
-    const step = TAU / n;
+    const rx = Math.max(cx - amplitude * endWobble * 1.2, 1);
+    const ry = Math.max(cy - amplitude * 1.2, 1);
+    const radius = Math.max(Math.min(ry * roundness, rx, ry), 0.5);
+    const perimeter = 4 * (rx - radius) + 4 * (ry - radius) + TAU * radius;
+    const edgeEnd = rx - radius;                    // half-length of the straight top and bottom edges
+    const fade = Math.max(radius * 1.5, 1);         // distance before a corner over which the waves die down
+
+    for (let j = 0; j < waves.length; j++) {
+        const w = waves[j];
+        waveWeights[j] = w.weight * (0.6 + 0.4 * Math.sin(time * w.pulse + w.pulsePhase));
+        waveOffsets[j] = w.phase - time * w.travel;
+    }
 
     for (let i = 0; i < n; i++) {
-        const s = seeds[i];
-        const angle = i * step + Math.sin(time * s.slideFreq + s.slidePhase) * step * slide;
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        const drift = (0.65 * Math.sin(time * s.freq1 + s.phase1) + 0.35 * Math.sin(time * s.freq2 + s.phase2)) * amplitude;
+        const u = i / n;
+        baseShapeAt(u * perimeter, cx, cy, rx, ry, radius);
 
-        xs[i] = cx + Math.sign(cos) * Math.abs(cos) ** exponent * rx + cos * drift;
-        ys[i] = cy + Math.sign(sin) * Math.abs(sin) ** exponent * ry + sin * drift;
+        let wave = 0;
+        for (let j = 0; j < waves.length; j++) {
+            wave += waveWeights[j] * Math.sin(TAU * waves[j].harmonic * u + waveOffsets[j]);
+        }
+
+        // Full depth mid-edge, eased down to endWobble before the corners begin, so a deep wave cannot kink into a corner
+        const t = Math.min(Math.max((edgeEnd - Math.abs(baseX - cx)) / fade, 0), 1);
+        const depth = amplitude * wave * (endWobble + (1 - endWobble) * t * t * (3 - 2 * t));
+        xs[i] = baseX + baseNx * depth;
+        ys[i] = baseY + baseNy * depth;
     }
 
     let d = `M${xs[0].toFixed(2)},${ys[0].toFixed(2)}`;
@@ -184,7 +200,50 @@ function buildOutline(width: number, height: number, time: number, activityLevel
     return d + "Z";
 }
 
-function createSeeds(count: number) {
+// Output of baseShapeAt, kept in module variables so the per-frame loop does not allocate
+let baseX = 0;
+let baseY = 0;
+let baseNx = 0;
+let baseNy = 0;
+
+/** Point and outward normal at arc length `s`, clockwise from the left end of the top edge. */
+function baseShapeAt(s: number, cx: number, cy: number, rx: number, ry: number, radius: number) {
+    const straightX = 2 * (rx - radius);
+    const straightY = 2 * (ry - radius);
+    const arc = Math.PI * radius / 2;
+
+    if (s < straightX) { return setEdge(cx - rx + radius + s, cy - ry, 0, -1); }
+    s -= straightX;
+    if (s < arc) { return setCorner(cx + rx - radius, cy - ry + radius, radius, -Math.PI / 2 + s / radius); }
+    s -= arc;
+    if (s < straightY) { return setEdge(cx + rx, cy - ry + radius + s, 1, 0); }
+    s -= straightY;
+    if (s < arc) { return setCorner(cx + rx - radius, cy + ry - radius, radius, s / radius); }
+    s -= arc;
+    if (s < straightX) { return setEdge(cx + rx - radius - s, cy + ry, 0, 1); }
+    s -= straightX;
+    if (s < arc) { return setCorner(cx - rx + radius, cy + ry - radius, radius, Math.PI / 2 + s / radius); }
+    s -= arc;
+    if (s < straightY) { return setEdge(cx - rx, cy + ry - radius - s, -1, 0); }
+    s -= straightY;
+    setCorner(cx - rx + radius, cy - ry + radius, radius, Math.PI + s / radius);
+}
+
+function setEdge(x: number, y: number, nx: number, ny: number) {
+    baseX = x;
+    baseY = y;
+    baseNx = nx;
+    baseNy = ny;
+}
+
+function setCorner(centerX: number, centerY: number, radius: number, angle: number) {
+    const nx = Math.cos(angle);
+    const ny = Math.sin(angle);
+    setEdge(centerX + nx * radius, centerY + ny * radius, nx, ny);
+}
+
+/** Whole-number harmonics keep the outline closed; low ones only, so bumps stay broad. Neighbors travel in opposite directions. */
+function createWaves() {
     let state = 0x9e3779b9; // mulberry32 with a fixed seed
     const random = () => {
         state = (state + 0x6d2b79f5) | 0;
@@ -193,12 +252,20 @@ function createSeeds(count: number) {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 
-    return Array.from({ length: count }, () => ({
-        freq1: 0.7 + random() * 0.6,
-        freq2: 1.3 + random() * 0.9,
-        slideFreq: 0.4 + random() * 0.5,
-        phase1: random() * TAU,
-        phase2: random() * TAU,
-        slidePhase: random() * TAU,
-    }));
+    return [
+        { harmonic: 2, weight: 0.6 },
+        { harmonic: 3, weight: 0.45 },
+        { harmonic: 4, weight: 0.33 },
+        { harmonic: 5, weight: 0.22 },
+    ].map(
+        ({ harmonic, weight }, i) => ({
+            harmonic,
+            weight,
+            travel: (0.35 + random() * 0.5) * (i % 2 ? -1 : 1),
+            phase: random() * TAU,
+            pulse: 0.2 + random() * 0.3,
+            pulsePhase: random() * TAU,
+        })
+    );
 }
+
