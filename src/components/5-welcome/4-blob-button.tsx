@@ -6,23 +6,6 @@ import { acquireMorphClock, activity, blobButtonActiveAtom, blobButtonConfig, mo
 
 export { blobButtonActiveAtom, blobButtonConfig } from "./4-blob-button-state";
 
-const MAX_SAMPLES = 96;
-const TAU = Math.PI * 2;
-const waves = createWaves();
-
-function useMorphClock(enabled: boolean) {
-    useEffect(
-        () => {
-            if (!enabled) {
-                return;
-            }
-            return acquireMorphClock();
-        },
-        [enabled]);
-}
-
-//---------------------------------------------------------------------------
-
 export function BlobButton({ className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
     const ref = useRef<HTMLButtonElement>(null);
     const width = useMotionValue(0);
@@ -85,6 +68,22 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
 
 //---------------------------------------------------------------------------
 
+function useMorphClock(enabled: boolean) {
+    useEffect(
+        () => {
+            if (!enabled) {
+                return;
+            }
+            return acquireMorphClock();
+        },
+        [enabled]);
+}
+
+//---------------------------------------------------------------------------
+
+const waves = createWaves();
+
+const MAX_SAMPLES = 96;
 const xs = new Float64Array(MAX_SAMPLES);
 const ys = new Float64Array(MAX_SAMPLES);
 const waveWeights = new Float64Array(waves.length);
@@ -193,3 +192,4 @@ function createWaves() {
     );
 }
 
+const TAU = Math.PI * 2;
