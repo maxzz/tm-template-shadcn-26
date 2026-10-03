@@ -8,14 +8,15 @@ import { classNames } from "@/utils";
  * Look of the morphing outline. Read on every frame, so edits (from code, settings UI, or devtools) apply immediately.
  */
 export const blobButtonConfig = proxy({
-    samples: 48,            // points the outline is drawn through (8..MAX_SAMPLES); more is smoother, it does not add bumps
-    wobble: 4.5,            // px, typical depth of the waves running along the outline
-    endWobble: 0.3,         // wobble multiplier on the rounded ends and side walls, where a deep wave would fold into a sharp corner
-    roundness: 1,           // corner radius as a fraction of the half-height: 1 gives semicircle ends, lower gives straight side walls
+    samples: 48,            // points the outline is drawn through (8..MAX_SAMPLES); more is smoother, it does not add lumps
+    squareness: 2.6,        // superellipse exponent of the base shape: 2 is an ellipse, 4 is close to a rounded rectangle
+    wobble: 0.24,           // largest lump height, as a fraction of the half-height
+    dent: 0.3,              // how deep inward dents may go, relative to outward lumps; low keeps the shape from pinching into a worm
+    endWobble: 0.6,         // lump multiplier on the left and right ends, which curve too tightly to take full lumps without kinking
     speed: 1,               // morph speed at rest
-    activeWobble: 1.7,      // wobble multiplier while hovered
-    activeSpeed: 2.4,       // speed multiplier while hovered
-    ghostLag: 2.4,          // how far ahead in morph time the faint second outline runs
+    activeWobble: 1.2,      // wobble multiplier while hovered
+    activeSpeed: 2,         // speed multiplier while hovered
+    ghostLag: 1.5,          // how far ahead in morph time the faint second outline runs
 });
 
 /** True while the pointer is over the button. Shared, so the Welcome page piece copies show the same state. */
@@ -27,7 +28,7 @@ const setBlobButtonActiveAtom = atom(null,
             return;
         }
         set(blobButtonActiveAtom, active);
-        animate(activity, active ? 1 : 0, { type: "spring", visualDuration: 0.7, bounce: 0.25 });
+        animate(activity, active ? 1 : 0, { type: "spring", visualDuration: 0.7, bounce: 0 });
     }
 );
 
@@ -116,7 +117,7 @@ export function BlobButton({ className, children, ...rest }: ButtonHTMLAttribute
             data-active={active || undefined}
             onPointerEnter={() => setActive(true)}
             onPointerLeave={() => setActive(false)}
-            className={classNames("relative group px-9 py-3.5 text-sm font-medium text-primary outline-none cursor-pointer", className)}
+            className={classNames("relative group px-10 py-5 text-sm font-medium text-primary outline-none cursor-pointer", className)}
             {...rest}
         >
             <svg className="absolute inset-0 size-full overflow-visible pointer-events-none" aria-hidden>
@@ -141,47 +142,61 @@ const waveWeights = new Float64Array(waves.length);
 const waveOffsets = new Float64Array(waves.length);
 
 /**
- * A rounded-rectangle base shape displaced along its normal by a few slow waves that travel around it.
- * The displacement is one smooth field sampled at evenly spaced points, so no single point can run off
- * on its own and fold the curve into a corner; a closed Catmull-Rom spline through the samples keeps it smooth.
+ * A superellipse base shape pushed out along its normal by a few broad lumps that drift around it.
+ * Inward dents are softly capped (see `dent`), so opposite sides cannot both cave in and pinch the shape thin.
+ * The displacement is one smooth field sampled at evenly spaced angles, and a closed Catmull-Rom spline
+ * through the samples keeps the curve free of corners.
  */
 function buildOutline(width: number, height: number, time: number, activityLevel: number): string {
     if (!width || !height) {
         return "";
     }
 
-    const { samples, wobble, endWobble, roundness, activeWobble } = blobButtonConfig;
+    const { samples, squareness, wobble, dent, endWobble, activeWobble } = blobButtonConfig;
     const n = Math.min(Math.max(Math.round(samples), 8), MAX_SAMPLES);
-    const amplitude = wobble * (1 + (activeWobble - 1) * activityLevel);
     const cx = width / 2;
     const cy = height / 2;
-    const rx = Math.max(cx - amplitude * endWobble * 1.2, 1);
-    const ry = Math.max(cy - amplitude * 1.2, 1);
-    const radius = Math.max(Math.min(ry * roundness, rx, ry), 0.5);
-    const perimeter = 4 * (rx - radius) + 4 * (ry - radius) + TAU * radius;
-    const edgeEnd = rx - radius;                    // half-length of the straight top and bottom edges
-    const fade = Math.max(radius * 1.5, 1);         // distance before a corner over which the waves die down
+    const amplitude = wobble * cy * (1 + (activeWobble - 1) * activityLevel);
+    const rx = Math.max(cx - amplitude, 1);
+    const ry = Math.max(cy - amplitude, 1);
+    const pointExp = 2 / squareness;
+    const normalExp = 2 * (squareness - 1) / squareness;
+    const dentLimit = Math.max(dent, 0.01);
 
     for (let j = 0; j < waves.length; j++) {
         const w = waves[j];
-        waveWeights[j] = w.weight * (0.6 + 0.4 * Math.sin(time * w.pulse + w.pulsePhase));
+        waveWeights[j] = w.weight * (0.65 + 0.35 * Math.sin(time * w.pulse + w.pulsePhase));
         waveOffsets[j] = w.phase - time * w.travel;
     }
 
     for (let i = 0; i < n; i++) {
-        const u = i / n;
-        baseShapeAt(u * perimeter, cx, cy, rx, ry, radius);
+        const angle = (i / n) * TAU;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const signX = Math.sign(cos);
+        const signY = Math.sign(sin);
+
+        // Superellipse point and the gradient of its implicit equation, which is the outward normal
+        const baseX = signX * Math.abs(cos) ** pointExp * rx;
+        const baseY = signY * Math.abs(sin) ** pointExp * ry;
+        const gradX = signX * Math.abs(cos) ** normalExp / rx;
+        const gradY = signY * Math.abs(sin) ** normalExp / ry;
+        const gradLength = Math.hypot(gradX, gradY) || 1;
 
         let wave = 0;
         for (let j = 0; j < waves.length; j++) {
-            wave += waveWeights[j] * Math.sin(TAU * waves[j].harmonic * u + waveOffsets[j]);
+            wave += waveWeights[j] * Math.sin(waves[j].harmonic * angle + waveOffsets[j]);
         }
+        // Lumps flatten out as they grow, so a big one landing on an end rounds it instead of drawing it into a point
+        const lump = wave >= 0 ? Math.tanh(wave) : dentLimit * Math.tanh(wave / dentLimit);
 
-        // Full depth mid-edge, eased down to endWobble before the corners begin, so a deep wave cannot kink into a corner
-        const t = Math.min(Math.max((edgeEnd - Math.abs(baseX - cx)) / fade, 0), 1);
-        const depth = amplitude * wave * (endWobble + (1 - endWobble) * t * t * (3 - 2 * t));
-        xs[i] = baseX + baseNx * depth;
-        ys[i] = baseY + baseNy * depth;
+        // The ends curve tightly, so they take a little less of the lumps than the top and bottom
+        const normalX = gradX / gradLength;
+        const normalY = gradY / gradLength;
+        const depth = amplitude * lump * (endWobble + (1 - endWobble) * normalY * normalY);
+
+        xs[i] = cx + baseX + normalX * depth;
+        ys[i] = cy + baseY + normalY * depth;
     }
 
     let d = `M${xs[0].toFixed(2)},${ys[0].toFixed(2)}`;
@@ -200,49 +215,10 @@ function buildOutline(width: number, height: number, time: number, activityLevel
     return d + "Z";
 }
 
-// Output of baseShapeAt, kept in module variables so the per-frame loop does not allocate
-let baseX = 0;
-let baseY = 0;
-let baseNx = 0;
-let baseNy = 0;
-
-/** Point and outward normal at arc length `s`, clockwise from the left end of the top edge. */
-function baseShapeAt(s: number, cx: number, cy: number, rx: number, ry: number, radius: number) {
-    const straightX = 2 * (rx - radius);
-    const straightY = 2 * (ry - radius);
-    const arc = Math.PI * radius / 2;
-
-    if (s < straightX) { return setEdge(cx - rx + radius + s, cy - ry, 0, -1); }
-    s -= straightX;
-    if (s < arc) { return setCorner(cx + rx - radius, cy - ry + radius, radius, -Math.PI / 2 + s / radius); }
-    s -= arc;
-    if (s < straightY) { return setEdge(cx + rx, cy - ry + radius + s, 1, 0); }
-    s -= straightY;
-    if (s < arc) { return setCorner(cx + rx - radius, cy + ry - radius, radius, s / radius); }
-    s -= arc;
-    if (s < straightX) { return setEdge(cx + rx - radius - s, cy + ry, 0, 1); }
-    s -= straightX;
-    if (s < arc) { return setCorner(cx - rx + radius, cy + ry - radius, radius, Math.PI / 2 + s / radius); }
-    s -= arc;
-    if (s < straightY) { return setEdge(cx - rx, cy + ry - radius - s, -1, 0); }
-    s -= straightY;
-    setCorner(cx - rx + radius, cy - ry + radius, radius, Math.PI + s / radius);
-}
-
-function setEdge(x: number, y: number, nx: number, ny: number) {
-    baseX = x;
-    baseY = y;
-    baseNx = nx;
-    baseNy = ny;
-}
-
-function setCorner(centerX: number, centerY: number, radius: number, angle: number) {
-    const nx = Math.cos(angle);
-    const ny = Math.sin(angle);
-    setEdge(centerX + nx * radius, centerY + ny * radius, nx, ny);
-}
-
-/** Whole-number harmonics keep the outline closed; low ones only, so bumps stay broad. Neighbors travel in opposite directions. */
+/**
+ * Whole-number harmonics keep the outline closed. Only low ones, so the lumps stay broad like a cloud's;
+ * neighbors travel in opposite directions, so the lumps visibly shift instead of the whole shape rotating.
+ */
 function createWaves() {
     let state = 0x9e3779b9; // mulberry32 with a fixed seed
     const random = () => {
@@ -254,16 +230,15 @@ function createWaves() {
 
     return [
         { harmonic: 2, weight: 0.6 },
-        { harmonic: 3, weight: 0.45 },
-        { harmonic: 4, weight: 0.33 },
-        { harmonic: 5, weight: 0.22 },
+        { harmonic: 3, weight: 0.55 },
+        { harmonic: 4, weight: 0.3 },
     ].map(
         ({ harmonic, weight }, i) => ({
             harmonic,
             weight,
-            travel: (0.35 + random() * 0.5) * (i % 2 ? -1 : 1),
+            travel: (0.5 + random() * 0.5) * (i % 2 ? -1 : 1),
             phase: random() * TAU,
-            pulse: 0.2 + random() * 0.3,
+            pulse: 0.35 + random() * 0.4,
             pulsePhase: random() * TAU,
         })
     );
