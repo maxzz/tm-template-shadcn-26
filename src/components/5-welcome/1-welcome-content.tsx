@@ -44,7 +44,9 @@ function EnterButton() {
 
     return (
         <BlobButton onClick={() => navigate(MainPage.main)}>
+            <span className="text-lg font-bold">
             Get started
+            </span>
         </BlobButton>
     );
 }
