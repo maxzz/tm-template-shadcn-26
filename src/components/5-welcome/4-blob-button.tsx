@@ -1,11 +1,10 @@
 import { type ButtonHTMLAttributes, useEffect, useRef } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
-import { motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { classNames } from "@/utils";
-import { acquireMorphClock, activity, blobButtonActiveAtom, blobButtonConfig, morphTime, setBlobButtonActiveAtom } from "./4-blob-button-state";
-import { buildOutline } from "./4-blob-button-math";
+import { motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 
-export { blobButtonActiveAtom, blobButtonConfig } from "./4-blob-button-state";
+import { acquireMorphClock, activity, blobButtonActiveAtom, blobButtonConfig, morphTime, setBlobButtonActiveAtom } from "./4-blob-button-atoms";
+import { buildOutline } from "./4-blob-button-math";
 
 export function BlobButton({ className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
     const ref = useRef<HTMLButtonElement>(null);

@@ -1,13 +1,4 @@
-import { blobButtonConfig } from "./4-blob-button-state";
-
-const TAU = Math.PI * 2;
-const MAX_SAMPLES = 96;
-
-const waves = createWaves();
-const xs = new Float64Array(MAX_SAMPLES);
-const ys = new Float64Array(MAX_SAMPLES);
-const waveWeights = new Float64Array(waves.length);
-const waveOffsets = new Float64Array(waves.length);
+import { blobButtonConfig } from "./4-blob-button-atoms";
 
 /**
  * A superellipse base shape pushed out along its normal by a few broad lumps that drift around it.
@@ -111,3 +102,14 @@ function createWaves() {
         })
     );
 }
+
+//---------------------------------------------------------------------------
+
+const TAU = Math.PI * 2;
+const MAX_SAMPLES = 96;
+
+const waves = createWaves();
+const xs = new Float64Array(MAX_SAMPLES);
+const ys = new Float64Array(MAX_SAMPLES);
+const waveWeights = new Float64Array(waves.length);
+const waveOffsets = new Float64Array(waves.length);
